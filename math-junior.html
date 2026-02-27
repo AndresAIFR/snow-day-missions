@@ -172,17 +172,6 @@
         }
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-        /* --- TTS BUTTON --- */
-        .tts-btn{
-            position:absolute;top:10px;right:10px;width:40px;height:40px;
-            border-radius:50%;border:2px solid var(--border);
-            background:var(--accent-bg);font-size:1.2rem;cursor:pointer;
-            display:flex;align-items:center;justify-content:center;
-            transition:transform .1s;z-index:2;
-            -webkit-tap-highlight-color:transparent;
-        }
-        .tts-btn:hover{transform:scale(1.1)}
-        .tts-btn:active{transform:scale(0.95)}
 
         /* --- ANSWER BUTTONS --- */
         .answers{margin-bottom:12px}
@@ -424,7 +413,6 @@
             <div class="q-level-tag" id="q-level-tag"></div>
             <div class="q-text" id="q-text"></div>
             <div class="compare-display" id="compare-display" style="display:none"></div>
-            <button class="tts-btn" id="tts-btn" onclick="speakQuestion()" aria-label="Read question aloud" title="Read to Me">&#x1F50A;</button>
         </div>
         <div class="answers" id="answers"></div>
         <div class="feedback" id="feedback">
@@ -520,20 +508,6 @@ function sndClick(){
     o.start(t);o.stop(t+0.06);
 }
 
-/* --- TEXT-TO-SPEECH --- */
-function speak(text){
-    if(!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
-    u.rate = 0.85; u.pitch = 1.1;
-    speechSynthesis.speak(u);
-}
-function speakQuestion(){
-    sndClick();
-    var lv=levels[S.li];
-    var q=lv.qs[S.qi];
-    speak(q.q);
-}
 
 /* --- LOCALSTORAGE --- */
 var SAVE_KEY = 'math-jr-progress';
@@ -860,8 +834,6 @@ function handleAnswer(e){
     updateStats();
     saveProgress();
 
-    // Auto-speak the feedback tip
-    setTimeout(function(){ speak(q.tip); }, 600);
 }
 
 /* --- NEXT QUESTION --- */

@@ -169,18 +169,6 @@
             padding-right:44px;
         }
 
-        /* ---- TTS BUTTON ---- */
-        .btn-tts{
-            position:absolute;top:14px;right:14px;
-            width:40px;height:40px;min-height:40px;border-radius:50%;
-            border:2px solid var(--border);background:var(--card);
-            cursor:pointer;font-size:1.1rem;line-height:1;
-            display:flex;align-items:center;justify-content:center;
-            -webkit-tap-highlight-color:transparent;
-            transition:background .15s,transform .1s;
-        }
-        .btn-tts:hover{background:var(--accent-bg)}
-        .btn-tts:active{transform:scale(.9)}
 
         /* ---- ANSWER BUTTONS ---- */
         .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
@@ -466,15 +454,6 @@ function sndClick(){
     o.start(t);o.stop(t+0.06);
 }
 
-/* ---- TTS ---- */
-function speak(text){
-    if(!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
-    u.rate = 0.85;
-    u.pitch = 1.1;
-    speechSynthesis.speak(u);
-}
 
 /* ---- QUESTION DATA ---- */
 var LEVELS = [
@@ -648,10 +627,7 @@ function renderQuestion() {
     var q = level.qs[S.qi];
     var isOrdering = q.opts.length === 3;
 
-    var qPlain = q.q.replace(/\n/g, ' ');
-
     var html = '<div class="q-card anim-fadeUp">';
-    html += '<button class="btn-tts" onclick="speak(\'' + qPlain.replace(/'/g, "\\'") + '\')" aria-label="Read question aloud">&#x1F50A;</button>';
     html += '<div class="q-label">' + level.name + ' \u2022 Question ' + (S.qi + 1) + ' of ' + level.qs.length + '</div>';
     html += '<div class="q-text">' + q.q.replace(/\n/g, '<br>') + '</div>';
     html += '</div>';
@@ -727,8 +703,6 @@ function pickAnswer(idx) {
     updateStats();
     saveProgress();
 
-    /* auto-read tips */
-    speak(q.tip);
 }
 
 /* ---- CONTINUE (with double-click guard) ---- */

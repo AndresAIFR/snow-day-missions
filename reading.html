@@ -146,34 +146,6 @@
             text-align:center;color:var(--accent);margin-bottom:8px;
         }
 
-        /* --- TTS BUTTON --- */
-        .tts-btn{
-            position:absolute;top:10px;right:10px;
-            width:40px;height:40px;border-radius:50%;
-            border:2px solid var(--border);background:var(--accent-bg);
-            font-size:1.2rem;cursor:pointer;display:flex;
-            align-items:center;justify-content:center;
-            transition:transform .15s;
-            -webkit-tap-highlight-color:transparent;
-            z-index:2;
-        }
-        .tts-btn:hover{transform:scale(1.1)}
-        .tts-btn:active{transform:scale(0.95)}
-
-        /* --- LISTEN TO STORY BUTTON --- */
-        .listen-story-btn{
-            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.95rem;
-            padding:10px 20px;border-radius:12px;
-            border:2px solid var(--accent);background:var(--accent-bg);
-            color:var(--accent);cursor:pointer;display:flex;
-            align-items:center;justify-content:center;gap:6px;
-            margin-bottom:12px;
-            -webkit-tap-highlight-color:transparent;
-            transition:transform .15s;
-        }
-        .listen-story-btn:hover{transform:scale(1.02)}
-        .listen-story-btn:active{transform:scale(0.97)}
-
         /* --- ANSWER BUTTONS --- */
         .answers{display:flex;flex-direction:column;gap:10px;margin-top:16px}
         .answers.word-pair{flex-direction:row;gap:12px}
@@ -628,15 +600,6 @@ function sndClick(){
     o.start(t);o.stop(t+0.06);
 }
 
-/* --- TEXT-TO-SPEECH --- */
-function speak(text){
-    if(!('speechSynthesis' in window)) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
-    u.rate = 0.85;
-    u.pitch = 1.1;
-    speechSynthesis.speak(u);
-}
 
 /* --- QUESTION DATA --- */
 var PASSAGE = "Today was supposed to be a normal day, but the snow came down fast. By lunch, the sidewalks were covered and the buses were late. Jaylen looked out the window and saw something weird. A small remote drone hovered near the playground and blinked a blue light.\n\nA note dropped from the drone and landed on the steps. Jaylen picked it up. The message said: \u201CComplete the mission. Protect the supplies.\u201D\n\nJaylen did not love surprises, but he liked a challenge. He went to the storage room and saw a stack of boxes labeled \u201CART CLUB.\u201D The tape was loose, and the boxes looked wobbly. If they fell, paint could spill everywhere.\n\nJaylen made a plan. First, he asked a friend to pre-check the room for anything unsafe. Next, Jaylen used extra tape to re-seal each box. Then he stacked the boxes again, with the heavy ones on the bottom.\n\nWhen he finished, the drone blinked green. Another note dropped: \u201CMission success. You were helpful and fearless.\u201D Jaylen laughed. Maybe snow days were not only about staying home. Sometimes, they were about being ready.";
@@ -839,24 +802,6 @@ function popFire(){
     f.classList.add('pop');
 }
 
-/* --- GET QUESTION TEXT FOR TTS --- */
-function getQuestionText(){
-    var level = LEVELS[state.level];
-    var q = level.qs[state.qi];
-    if(level.type === 'vowel'){
-        return 'Which word has the long vowel sound? ' + q.words[0] + ' or ' + q.words[1];
-    } else if(level.type === 'silente'){
-        return 'Does this word end with a silent e? ' + q.word;
-    } else if(level.type === 'syllable'){
-        return 'How do you split this word into syllables? ' + q.word;
-    } else if(level.type === 'wordpart'){
-        return 'What does this word part mean? ' + q.part;
-    } else if(level.type === 'story'){
-        return q.q;
-    }
-    return '';
-}
-
 /* --- RENDER QUESTION --- */
 function renderQuestion(){
     var level = LEVELS[state.level];
@@ -876,16 +821,10 @@ function renderQuestion(){
     answers.className = 'answers';
     answers.innerHTML = '';
 
-    /* TTS button HTML */
-    var ttsBtn = '<button class="tts-btn" onclick="event.stopPropagation();sndClick();speak(getQuestionText())" aria-label="Read question aloud">\uD83D\uDD0A</button>';
-
     /* passage area */
     if(level.type === 'story' && state.passageVisible){
         passageArea.style.display = 'block';
         passageArea.innerHTML =
-            '<button class="listen-story-btn" onclick="sndClick();speak(PASSAGE)">' +
-                '\uD83D\uDD0A Listen to Story' +
-            '</button>' +
             '<button class="passage-toggle" onclick="togglePassage()">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
                 ' Story: Operation Snow Rescue' +
@@ -903,7 +842,7 @@ function renderQuestion(){
     /* LEVEL 1: Vowel Spy */
     if(level.type === 'vowel'){
         var shuffled = shuffle(q.words);
-        card.innerHTML = ttsBtn +
+        card.innerHTML =
             '<div class="card-question">Which word has the <strong>LONG</strong> vowel sound?</div>' +
             '<div class="card-word-display">' +
                 '<span class="card-big-word">'+shuffled[0]+'</span>' +
@@ -921,7 +860,7 @@ function renderQuestion(){
     }
     /* LEVEL 2: Silent e */
     else if(level.type === 'silente'){
-        card.innerHTML = ttsBtn +
+        card.innerHTML =
             '<div class="card-question">Does this word end with a <strong>silent e</strong>?</div>' +
             '<div class="card-single-word">'+q.word+'</div>';
         answers.classList.add('word-pair');
@@ -936,7 +875,7 @@ function renderQuestion(){
     }
     /* LEVEL 3: Syllable */
     else if(level.type === 'syllable'){
-        card.innerHTML = ttsBtn +
+        card.innerHTML =
             '<div class="card-question">How do you split this word into syllables?</div>' +
             '<div class="card-single-word">'+q.word+'</div>';
         q.opts.forEach(function(opt,i){
@@ -949,7 +888,7 @@ function renderQuestion(){
     }
     /* LEVEL 4: Word Part */
     else if(level.type === 'wordpart'){
-        card.innerHTML = ttsBtn +
+        card.innerHTML =
             '<div class="card-question">What does this word part mean?</div>' +
             '<div class="card-part">'+q.part+'</div>';
         q.opts.forEach(function(opt,i){
@@ -962,7 +901,7 @@ function renderQuestion(){
     }
     /* LEVEL 5: Story */
     else if(level.type === 'story'){
-        card.innerHTML = ttsBtn +
+        card.innerHTML =
             '<div class="card-question">'+q.q+'</div>';
         q.opts.forEach(function(opt,i){
             var btn = document.createElement('button');
@@ -1065,9 +1004,6 @@ function handleAnswer(correct, btn, tip){
 
     cont.classList.add('visible');
 
-    /* Auto-read feedback aloud */
-    setTimeout(function(){ speak(feedbackText); }, 400);
-
     /* Save progress after each answer */
     saveProgress();
 }
@@ -1076,8 +1012,6 @@ function handleAnswer(correct, btn, tip){
 function nextQuestion(){
     if(advancing) return;
     advancing = true;
-
-    speechSynthesis.cancel();
 
     var level = LEVELS[state.level];
     state.qi++;
@@ -1168,9 +1102,6 @@ function showStoryIntro(){
     content.innerHTML =
         '<h3>\uD83D\uDCDC Operation Snow Rescue</h3>' +
         '<p class="subtitle">Read the passage carefully, then answer questions about it.</p>' +
-        '<button class="listen-story-btn" onclick="sndClick();speak(PASSAGE)" style="margin:0 auto 12px">' +
-            '\uD83D\uDD0A Listen to Story' +
-        '</button>' +
         '<div class="passage-box" style="max-height:350px;text-align:left">' +
             PASSAGE.split('\n\n').map(function(p){return '<p>'+p+'</p>';}).join('') +
         '</div>' +
