@@ -97,6 +97,28 @@
         .btn-toggle{font-size:.78rem;padding:6px 14px}
         .btn-toggle.active{background:#E8F5E9;border-color:var(--correct);color:var(--correct)}
         .btn-back{font-size:.78rem;padding:6px 14px}
+        .btn-danger{background:#FEE2E2;color:#B91C1C;border-color:#EF4444}
+        .btn-danger:hover{background:#FECACA}
+
+        /* ─── DELETE CONFIRM ─── */
+        .confirm-overlay{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,.45);z-index:100;
+            display:flex;align-items:center;justify-content:center;
+            opacity:0;pointer-events:none;transition:opacity .2s;
+        }
+        .confirm-overlay.visible{opacity:1;pointer-events:auto}
+        .confirm-box{
+            background:var(--card);border:3px solid var(--border);border-radius:20px;
+            box-shadow:8px 8px 0 var(--border);padding:28px 32px;
+            max-width:380px;width:90%;text-align:center;
+            transform:scale(.9);transition:transform .2s;
+        }
+        .confirm-overlay.visible .confirm-box{transform:scale(1)}
+        .confirm-box h3{font-family:'Fredoka',sans-serif;font-size:1.2rem;margin-bottom:8px}
+        .confirm-box p{color:var(--text-mid);font-size:.9rem;margin-bottom:20px;line-height:1.5}
+        .confirm-box .confirm-actions{display:flex;gap:10px;justify-content:center}
+        .confirm-box .confirm-name{font-weight:700;color:var(--text)}
 
         /* ─── EMPTY STATE ─── */
         .empty{
@@ -317,6 +339,18 @@
             </a>
         </div>
     </header>
+
+    <!-- ─── DELETE CONFIRM MODAL ─── -->
+    <div class="confirm-overlay" id="confirm-overlay" onclick="cancelDelete()">
+        <div class="confirm-box" onclick="event.stopPropagation()">
+            <h3>Delete Student?</h3>
+            <p>This will permanently remove <span class="confirm-name" id="confirm-name"></span> and all their answers. This cannot be undone.</p>
+            <div class="confirm-actions">
+                <button class="btn" onclick="cancelDelete()">Cancel</button>
+                <button class="btn btn-danger" id="btn-confirm-delete" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ─── ERROR BAR ─── -->
     <div class="error-bar" id="error-bar" role="alert"></div>
@@ -607,7 +641,7 @@ function renderDrillDown(student, answers){
 
     return `
     <tr class="drill-row${expandedIds.has(student.id) ? ' open' : ''}" id="drill-${student.id}" aria-label="Details for ${escHtml(student.name)}">
-        <td colspan="6">
+        <td colspan="7">
             <div class="drill-inner">
                 ${sections
                     ? `<div class="drill-missions">${sections}</div>`
@@ -649,6 +683,11 @@ function renderTable(){
             ${renderMissionCell(mjs)}
             ${renderMissionCell(mss)}
             <td class="td-total">${total > 0 ? total + ' pts' : '<span class="td-dash">&mdash;</span>'}</td>
+            <td style="text-align:center">
+                <button class="btn btn-danger" style="padding:4px 10px;font-size:.75rem"
+                    onclick="event.stopPropagation();promptDelete('${student.id}','${escHtml(student.name)}')"
+                    aria-label="Delete ${escHtml(student.name)}">&#x1F5D1;</button>
+            </td>
         </tr>`;
 
         const drillRow = renderDrillDown(student, answers);
@@ -666,6 +705,7 @@ function renderTable(){
                         <th scope="col" class="th-math-jr">&#x1F50D; Math Jr</th>
                         <th scope="col" class="th-math-sr">&#x1F680; Math Sr</th>
                         <th scope="col">Total</th>
+                        <th scope="col" style="width:60px"></th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -769,6 +809,48 @@ function escHtml(str){
         .replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;')
         .replace(/'/g,'&#39;');
+}
+
+/* ─────────────────────────────────────────────
+   DELETE STUDENT
+───────────────────────────────────────────── */
+let pendingDeleteId = null;
+
+function promptDelete(studentId, studentName){
+    pendingDeleteId = studentId;
+    document.getElementById('confirm-name').textContent = studentName;
+    document.getElementById('confirm-overlay').classList.add('visible');
+}
+
+function cancelDelete(){
+    pendingDeleteId = null;
+    document.getElementById('confirm-overlay').classList.remove('visible');
+}
+
+async function confirmDelete(){
+    if(!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    const btn = document.getElementById('btn-confirm-delete');
+    btn.textContent = 'Deleting\u2026';
+    btn.disabled = true;
+
+    try {
+        /* delete answers first (FK constraint), then student */
+        const { error: ansErr } = await db.from('sdm_answers').delete().eq('student_id', id);
+        if(ansErr) throw ansErr;
+        const { error: stuErr } = await db.from('sdm_students').delete().eq('id', id);
+        if(stuErr) throw stuErr;
+
+        expandedIds.delete(id);
+        cancelDelete();
+        await fetchData();
+    } catch(err){
+        showError('Delete failed: ' + (err.message || 'Unknown error'));
+        cancelDelete();
+    } finally {
+        btn.textContent = 'Delete';
+        btn.disabled = false;
+    }
 }
 
 /* ─────────────────────────────────────────────
