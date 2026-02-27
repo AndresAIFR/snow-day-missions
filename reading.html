@@ -23,13 +23,13 @@
         body{
             font-family:'DM Sans',system-ui,sans-serif;
             background:var(--bg);color:var(--text);
-            min-height:100dvh;display:flex;flex-direction:column;
+            min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
             align-items:center;padding:0 0 60px;
             overflow-x:hidden;-webkit-font-smoothing:antialiased;
             position:relative;
         }
 
-        /* ─── SNOWFLAKES ─── */
+        /* --- SNOWFLAKES --- */
         .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
         .flake{
             position:absolute;top:-20px;color:#B8D4E8;opacity:.6;
@@ -41,10 +41,10 @@
             100%{transform:translateY(calc(100vh + 40px)) rotate(var(--spin,360deg))}
         }
 
-        /* ─── LAYOUT ─── */
+        /* --- LAYOUT --- */
         .wrap{width:100%;max-width:460px;position:relative;z-index:1;padding:0 16px}
 
-        /* ─── TOP BAR ─── */
+        /* --- TOP BAR --- */
         .top-bar{
             width:100%;background:linear-gradient(180deg,#E8F4FD 0%,var(--bg) 100%);
             padding:14px 16px 0;position:relative;z-index:2;
@@ -58,7 +58,7 @@
         .back-link:hover{color:var(--text)}
         .back-link svg{width:18px;height:18px}
 
-        /* ─── GAME HEADER ─── */
+        /* --- GAME HEADER --- */
         .game-header{
             display:flex;align-items:center;justify-content:space-between;
             padding:16px 0 10px;gap:8px;
@@ -80,7 +80,7 @@
             letter-spacing:.3px;
         }
 
-        /* ─── LEVEL TABS ─── */
+        /* --- LEVEL TABS --- */
         .level-tabs{
             display:flex;gap:6px;padding:8px 0 14px;overflow-x:auto;
             -webkit-overflow-scrolling:touch;scrollbar-width:none;
@@ -99,7 +99,7 @@
         .level-tab.done{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
         .level-tab.locked{opacity:.4}
 
-        /* ─── PROGRESS BAR ─── */
+        /* --- PROGRESS BAR --- */
         .progress-wrap{padding:0 0 16px}
         .progress-bar{
             height:10px;background:var(--bar-bg);border-radius:8px;
@@ -110,12 +110,13 @@
             transition:width .4s cubic-bezier(.4,0,.2,1);width:0;
         }
 
-        /* ─── CARD ─── */
+        /* --- CARD --- */
         .card{
             background:var(--card);border:3px solid var(--border);
             border-radius:20px;padding:28px 22px;
             box-shadow:4px 4px 0 var(--border);
             transition:transform .15s;
+            position:relative;
         }
         .card.shake{animation:shake .45s ease}
         .card.pop{animation:cardPop .3s ease}
@@ -145,7 +146,35 @@
             text-align:center;color:var(--accent);margin-bottom:8px;
         }
 
-        /* ─── ANSWER BUTTONS ─── */
+        /* --- TTS BUTTON --- */
+        .tts-btn{
+            position:absolute;top:10px;right:10px;
+            width:40px;height:40px;border-radius:50%;
+            border:2px solid var(--border);background:var(--accent-bg);
+            font-size:1.2rem;cursor:pointer;display:flex;
+            align-items:center;justify-content:center;
+            transition:transform .15s;
+            -webkit-tap-highlight-color:transparent;
+            z-index:2;
+        }
+        .tts-btn:hover{transform:scale(1.1)}
+        .tts-btn:active{transform:scale(0.95)}
+
+        /* --- LISTEN TO STORY BUTTON --- */
+        .listen-story-btn{
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.95rem;
+            padding:10px 20px;border-radius:12px;
+            border:2px solid var(--accent);background:var(--accent-bg);
+            color:var(--accent);cursor:pointer;display:flex;
+            align-items:center;justify-content:center;gap:6px;
+            margin-bottom:12px;
+            -webkit-tap-highlight-color:transparent;
+            transition:transform .15s;
+        }
+        .listen-story-btn:hover{transform:scale(1.02)}
+        .listen-story-btn:active{transform:scale(0.97)}
+
+        /* --- ANSWER BUTTONS --- */
         .answers{display:flex;flex-direction:column;gap:10px;margin-top:16px}
         .answers.word-pair{flex-direction:row;gap:12px}
         .answers.word-pair .ans-btn{flex:1}
@@ -157,6 +186,7 @@
             cursor:pointer;transition:all .1s;
             -webkit-tap-highlight-color:transparent;
             text-align:center;line-height:1.3;
+            min-height:48px;
         }
         .ans-btn:active:not(.disabled){
             border-bottom-width:3px;transform:translateY(4px);
@@ -175,7 +205,7 @@
         .ans-btn.disabled{cursor:default;opacity:.7}
         .ans-btn.pulse{animation:pulse 1.6s ease infinite}
 
-        /* ─── FEEDBACK ─── */
+        /* --- FEEDBACK --- */
         .feedback{
             max-height:0;overflow:hidden;
             transition:max-height .35s ease,margin .35s ease,padding .35s ease;
@@ -187,7 +217,7 @@
         .feedback.wrong{background:var(--no-bg);color:#991B1B}
         .feedback-icon{font-size:1.2rem;margin-right:6px}
 
-        /* ─── CONTINUE BUTTON ─── */
+        /* --- CONTINUE BUTTON --- */
         .continue-btn{
             font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.15rem;
             width:100%;padding:16px;border-radius:16px;
@@ -196,11 +226,12 @@
             margin-top:16px;display:none;
             -webkit-tap-highlight-color:transparent;
             transition:all .1s;animation:fadeUp .3s ease;
+            min-height:48px;
         }
         .continue-btn:active{border-bottom-width:3px;transform:translateY(4px)}
         .continue-btn.visible{display:block}
 
-        /* ─── PASSAGE (Level 5) ─── */
+        /* --- PASSAGE (Level 5) --- */
         .passage-box{
             background:var(--accent-bg);border-left:5px solid var(--accent);
             border-radius:0 12px 12px 0;padding:18px 16px;
@@ -218,11 +249,11 @@
         .passage-toggle svg{width:14px;height:14px;transition:transform .2s}
         .passage-toggle.collapsed svg{transform:rotate(-90deg)}
 
-        /* ─── SCREENS ─── */
+        /* --- SCREENS --- */
         .screen{display:none;animation:fadeUp .45s ease}
         .screen.active{display:block}
 
-        /* ─── INTRO SCREEN ─── */
+        /* --- INTRO SCREEN --- */
         .intro{text-align:center;padding-top:60px}
         .intro-icon{font-size:4rem;margin-bottom:12px;display:block;animation:bounce .7s cubic-bezier(.34,1.56,.64,1)}
         .intro h1{
@@ -237,10 +268,33 @@
             background:var(--accent);color:#fff;cursor:pointer;
             -webkit-tap-highlight-color:transparent;
             transition:all .1s;
+            min-height:48px;
         }
         .intro .start-btn:active{border-bottom-width:3px;transform:translateY(4px)}
 
-        /* ─── LEVEL COMPLETE SCREEN ─── */
+        /* --- RESUME PROMPT --- */
+        .resume-prompt{
+            margin-top:16px;padding:16px;background:var(--accent-bg);
+            border:2px solid var(--accent);border-radius:16px;
+            text-align:center;
+        }
+        .resume-prompt p{
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;
+            color:var(--accent);margin-bottom:12px;padding:0;
+        }
+        .resume-btns{display:flex;gap:10px;justify-content:center}
+        .resume-btn{
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:1rem;
+            padding:10px 24px;border-radius:12px;
+            border:2px solid var(--border);border-bottom-width:5px;
+            cursor:pointer;-webkit-tap-highlight-color:transparent;
+            transition:all .1s;min-height:48px;
+        }
+        .resume-btn:active{border-bottom-width:2px;transform:translateY(3px)}
+        .resume-btn.yes{background:var(--ok);color:#fff;border-color:var(--ok)}
+        .resume-btn.no{background:var(--card);color:var(--text)}
+
+        /* --- LEVEL COMPLETE SCREEN --- */
         .level-done{text-align:center;padding-top:40px}
         .level-done-icon{font-size:4rem;margin-bottom:12px;display:block}
         .level-done h2{
@@ -265,10 +319,11 @@
             border:3px solid var(--border);border-bottom-width:7px;
             background:var(--accent);color:#fff;cursor:pointer;
             -webkit-tap-highlight-color:transparent;transition:all .1s;
+            min-height:48px;
         }
         .next-level-btn:active{border-bottom-width:3px;transform:translateY(4px)}
 
-        /* ─── GAME COMPLETE SCREEN ─── */
+        /* --- GAME COMPLETE SCREEN --- */
         .game-done{text-align:center;padding-top:40px}
         .game-done-icon{font-size:4.5rem;margin-bottom:12px;display:block}
         .game-done h2{
@@ -283,6 +338,7 @@
             border:3px solid var(--border);border-bottom-width:7px;
             background:var(--ok);color:#fff;cursor:pointer;
             -webkit-tap-highlight-color:transparent;transition:all .1s;
+            min-height:48px;
         }
         .play-again-btn:active{border-bottom-width:3px;transform:translateY(4px)}
         .back-missions-btn{
@@ -291,10 +347,11 @@
             border:3px solid var(--border);border-bottom-width:7px;
             background:var(--card);color:var(--text);cursor:pointer;
             -webkit-tap-highlight-color:transparent;transition:all .1s;
+            min-height:48px;
         }
         .back-missions-btn:active{border-bottom-width:3px;transform:translateY(4px)}
 
-        /* ─── STORY INTRO ─── */
+        /* --- STORY INTRO --- */
         .story-intro{text-align:center}
         .story-intro h3{
             font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.3rem;
@@ -307,11 +364,11 @@
             border:3px solid var(--border);border-bottom-width:7px;
             background:var(--accent);color:#fff;cursor:pointer;
             -webkit-tap-highlight-color:transparent;transition:all .1s;
-            margin-top:18px;
+            margin-top:18px;min-height:48px;
         }
         .story-intro .ready-btn:active{border-bottom-width:3px;transform:translateY(4px)}
 
-        /* ─── CONFETTI ─── */
+        /* --- CONFETTI --- */
         .confetti-piece{
             position:fixed;top:-20px;width:var(--w,10px);height:var(--h,14px);
             background:var(--color,#3B82F6);z-index:100;pointer-events:none;
@@ -323,7 +380,7 @@
             100%{transform:translateY(calc(100vh + 60px)) rotate(var(--rot,720deg)) scale(.4);opacity:0}
         }
 
-        /* ─── ANIMATIONS ─── */
+        /* --- ANIMATIONS --- */
         @keyframes bounce{0%{transform:scale(0)}65%{transform:scale(1.15)}100%{transform:scale(1)}}
         @keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
         @keyframes shake{
@@ -349,7 +406,7 @@
             100%{transform:scale(1)}
         }
 
-        /* ─── RESPONSIVE ─── */
+        /* --- RESPONSIVE: SMALL --- */
         @media(max-width:380px){
             .intro h1{font-size:1.7rem}
             .card-big-word{font-size:1.8rem}
@@ -358,6 +415,75 @@
             .ans-btn.big-word{font-size:1.2rem;padding:16px 14px}
             .game-logo{font-size:.95rem}
             .stat-box{padding:10px 14px;min-width:75px}
+        }
+
+        /* --- RESPONSIVE: TABLET --- */
+        @media(min-width:768px){
+            .wrap{max-width:640px}
+            .top-bar-inner{max-width:640px}
+            .card-question{font-size:1.5rem}
+            .card{padding:34px 30px}
+            .ans-btn{font-size:1.2rem;padding:18px 22px}
+            .ans-btn.big-word{font-size:1.65rem;padding:22px 22px}
+            .feedback{font-size:1.05rem}
+            .feedback.show{padding:18px 22px}
+            .continue-btn{font-size:1.25rem;padding:18px}
+            .game-logo{font-size:1.25rem}
+            .points-badge{font-size:.95rem;padding:5px 14px}
+            .streak-badge{font-size:1.1rem}
+            .level-tab{font-size:.8rem;padding:6px 14px}
+            .progress-bar{height:12px}
+            .intro h1{font-size:2.6rem}
+            .intro p{font-size:1.15rem}
+            .intro .start-btn{font-size:1.3rem;padding:18px 56px}
+            .level-done h2{font-size:2.1rem}
+            .game-done h2{font-size:2.3rem}
+            .stat-box .stat-val{font-size:1.8rem}
+            .next-level-btn{font-size:1.25rem;padding:18px 56px}
+            .play-again-btn{font-size:1.25rem;padding:18px 56px}
+            .passage-box{font-size:1.05rem;max-height:300px;padding:22px 20px}
+            .card-big-word{font-size:2.8rem}
+            .card-single-word{font-size:3.2rem}
+            .card-part{font-size:3.4rem}
+        }
+
+        /* --- RESPONSIVE: DESKTOP --- */
+        @media(min-width:1024px){
+            .wrap{max-width:720px}
+            .top-bar-inner{max-width:720px}
+            .card-question{font-size:1.65rem}
+            .card{padding:38px 36px}
+            .ans-btn{font-size:1.3rem;padding:20px 26px}
+            .ans-btn.big-word{font-size:1.8rem;padding:24px 26px}
+            .feedback{font-size:1.1rem}
+            .feedback.show{padding:20px 26px}
+            .continue-btn{font-size:1.35rem;padding:20px}
+            .game-logo{font-size:1.35rem}
+            .points-badge{font-size:1rem;padding:6px 16px}
+            .streak-badge{font-size:1.15rem}
+            .level-tab{font-size:.85rem;padding:7px 16px}
+            .intro h1{font-size:2.8rem}
+            .intro p{font-size:1.2rem}
+            .intro .start-btn{font-size:1.4rem;padding:20px 64px}
+            .level-done h2{font-size:2.3rem}
+            .game-done h2{font-size:2.5rem}
+            .stat-box .stat-val{font-size:2rem}
+            .next-level-btn{font-size:1.35rem;padding:20px 64px}
+            .play-again-btn{font-size:1.35rem;padding:20px 64px}
+            .passage-box{font-size:1.1rem;max-height:350px;padding:24px 22px}
+            .card-big-word{font-size:3rem}
+            .card-single-word{font-size:3.5rem}
+            .card-part{font-size:3.6rem}
+        }
+
+        /* --- ACCESSIBILITY: REDUCED MOTION --- */
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{
+                animation-duration:0.01ms !important;
+                animation-iteration-count:1 !important;
+                transition-duration:0.01ms !important;
+            }
+            .snow,.flake{display:none !important}
         }
     </style>
 </head>
@@ -383,7 +509,8 @@
             <span class="intro-icon">&#x1F4D6;</span>
             <h1>Decoder Mission</h1>
             <p>Crack vowel codes, spot sneaky silent e's, smash syllables, and complete a secret story mission!</p>
-            <button class="start-btn" onclick="startGame()">Let's Go!</button>
+            <button class="start-btn" onclick="sndClick();startGame()">Let's Go!</button>
+            <div id="resume-prompt"></div>
         </div>
     </div>
 
@@ -414,7 +541,7 @@
 
         <div class="feedback" id="feedback"></div>
 
-        <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">Next</button>
+        <button class="continue-btn" id="continue-btn" onclick="sndClick();nextQuestion()">Next</button>
     </div>
 
     <!-- LEVEL COMPLETE SCREEN -->
@@ -435,7 +562,7 @@
 </div>
 
 <script>
-/* ─── SNOWFLAKES ─── */
+/* --- SNOWFLAKES --- */
 (function(){
     var c = document.getElementById('snow');
     var f = ['\u2744','\u2745','\u2746','\u2022'];
@@ -456,7 +583,62 @@
     }
 })();
 
-/* ─── QUESTION DATA ─── */
+/* --- SOUND EFFECTS (Web Audio API) --- */
+var AudioCtx = window.AudioContext || window.webkitAudioContext;
+var _actx;
+function actx(){ if(!_actx) _actx = new AudioCtx(); return _actx; }
+
+function sndCorrect(){
+    var c=actx(), t=c.currentTime;
+    [523.25,659.25].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.12);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.3);
+        o.start(t+i*0.12);o.stop(t+i*0.12+0.3);
+    });
+}
+
+function sndWrong(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.type='triangle';o.connect(g);g.connect(c.destination);
+    o.frequency.setValueAtTime(200,t);o.frequency.linearRampToValueAtTime(140,t+0.25);
+    g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    o.start(t);o.stop(t+0.3);
+}
+
+function sndLevelUp(){
+    var c=actx(),t=c.currentTime;
+    [523.25,659.25,783.99].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.15);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.45);
+        o.start(t+i*0.15);o.stop(t+i*0.15+0.45);
+    });
+}
+
+function sndClick(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.value=880;
+    g.gain.setValueAtTime(0.08,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+    o.start(t);o.stop(t+0.06);
+}
+
+/* --- TEXT-TO-SPEECH --- */
+function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+    u.rate = 0.85;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
+}
+
+/* --- QUESTION DATA --- */
 var PASSAGE = "Today was supposed to be a normal day, but the snow came down fast. By lunch, the sidewalks were covered and the buses were late. Jaylen looked out the window and saw something weird. A small remote drone hovered near the playground and blinked a blue light.\n\nA note dropped from the drone and landed on the steps. Jaylen picked it up. The message said: \u201CComplete the mission. Protect the supplies.\u201D\n\nJaylen did not love surprises, but he liked a challenge. He went to the storage room and saw a stack of boxes labeled \u201CART CLUB.\u201D The tape was loose, and the boxes looked wobbly. If they fell, paint could spill everywhere.\n\nJaylen made a plan. First, he asked a friend to pre-check the room for anything unsafe. Next, Jaylen used extra tape to re-seal each box. Then he stacked the boxes again, with the heavy ones on the bottom.\n\nWhen he finished, the drone blinked green. Another note dropped: \u201CMission success. You were helpful and fearless.\u201D Jaylen laughed. Maybe snow days were not only about staying home. Sometimes, they were about being ready.";
 
 var LEVELS = [
@@ -525,7 +707,7 @@ var LEVEL_COMPLETE_MSG = [
     {t:"Story Mission Complete!",d:"You read, understood, and conquered!",icon:"\uD83C\uDF1F"}
 ];
 
-/* ─── GAME STATE ─── */
+/* --- GAME STATE --- */
 var state = {
     level: 0,
     qi: 0,
@@ -540,7 +722,9 @@ var state = {
     passageVisible: true
 };
 
-/* ─── HELPERS ─── */
+var advancing = false;
+
+/* --- HELPERS --- */
 function $(id){ return document.getElementById(id); }
 
 function showScreen(id){
@@ -558,9 +742,24 @@ function shuffle(arr){
     return a;
 }
 
+/* --- ANIMATED POINTS COUNTER --- */
+function animatePoints(from, to){
+    var el = $('points-badge');
+    if(!el) return;
+    if(from >= to){ el.textContent = to + ' pts'; return; }
+    var current = from;
+    var step = function(){
+        current += 1;
+        if(current > to) current = to;
+        el.textContent = current + ' pts';
+        if(current < to) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+
 function updateHeader(){
     $('streak-num').textContent = state.streak;
-    $('points-badge').textContent = state.points + ' pts';
+    /* points-badge is updated via animatePoints in handleAnswer */
 }
 
 function buildLevelTabs(){
@@ -586,7 +785,30 @@ function updateProgress(){
     $('progress-fill').style.width = pct + '%';
 }
 
-/* ─── CONFETTI ─── */
+/* --- LOCALSTORAGE PROGRESS --- */
+function saveProgress(){
+    localStorage.setItem('reading-progress', JSON.stringify({
+        li: state.level, qi: state.qi, score: state.points,
+        streak: state.streak, best: state.bestStreak,
+        totalHit: state.totalCorrect, totalQ: state.totalQuestions,
+        lvlHit: state.levelCorrect, lvlPts: state.levelPoints,
+        passVis: state.passageVisible
+    }));
+}
+
+function loadProgress(){
+    var d = localStorage.getItem('reading-progress');
+    if(d){
+        try { return JSON.parse(d); } catch(e){ return null; }
+    }
+    return null;
+}
+
+function clearProgress(){
+    localStorage.removeItem('reading-progress');
+}
+
+/* --- CONFETTI --- */
 function spawnConfetti(){
     var colors = ['#3B82F6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#EC4899','#14B8A6'];
     for(var i=0;i<55;i++){
@@ -609,7 +831,7 @@ function spawnConfetti(){
     }
 }
 
-/* ─── FIRE POP ─── */
+/* --- FIRE POP --- */
 function popFire(){
     var f = $('streak-fire');
     f.classList.remove('pop');
@@ -617,7 +839,25 @@ function popFire(){
     f.classList.add('pop');
 }
 
-/* ─── RENDER QUESTION ─── */
+/* --- GET QUESTION TEXT FOR TTS --- */
+function getQuestionText(){
+    var level = LEVELS[state.level];
+    var q = level.qs[state.qi];
+    if(level.type === 'vowel'){
+        return 'Which word has the long vowel sound? ' + q.words[0] + ' or ' + q.words[1];
+    } else if(level.type === 'silente'){
+        return 'Does this word end with a silent e? ' + q.word;
+    } else if(level.type === 'syllable'){
+        return 'How do you split this word into syllables? ' + q.word;
+    } else if(level.type === 'wordpart'){
+        return 'What does this word part mean? ' + q.part;
+    } else if(level.type === 'story'){
+        return q.q;
+    }
+    return '';
+}
+
+/* --- RENDER QUESTION --- */
 function renderQuestion(){
     var level = LEVELS[state.level];
     var q = level.qs[state.qi];
@@ -628,6 +868,7 @@ function renderQuestion(){
     var passageArea = $('passage-area');
 
     state.answered = false;
+    advancing = false;
     fb.className = 'feedback';
     fb.innerHTML = '';
     cont.classList.remove('visible');
@@ -635,10 +876,16 @@ function renderQuestion(){
     answers.className = 'answers';
     answers.innerHTML = '';
 
+    /* TTS button HTML */
+    var ttsBtn = '<button class="tts-btn" onclick="event.stopPropagation();sndClick();speak(getQuestionText())" aria-label="Read question aloud">\uD83D\uDD0A</button>';
+
     /* passage area */
     if(level.type === 'story' && state.passageVisible){
         passageArea.style.display = 'block';
         passageArea.innerHTML =
+            '<button class="listen-story-btn" onclick="sndClick();speak(PASSAGE)">' +
+                '\uD83D\uDD0A Listen to Story' +
+            '</button>' +
             '<button class="passage-toggle" onclick="togglePassage()">' +
                 '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
                 ' Story: Operation Snow Rescue' +
@@ -656,7 +903,7 @@ function renderQuestion(){
     /* LEVEL 1: Vowel Spy */
     if(level.type === 'vowel'){
         var shuffled = shuffle(q.words);
-        card.innerHTML =
+        card.innerHTML = ttsBtn +
             '<div class="card-question">Which word has the <strong>LONG</strong> vowel sound?</div>' +
             '<div class="card-word-display">' +
                 '<span class="card-big-word">'+shuffled[0]+'</span>' +
@@ -668,13 +915,13 @@ function renderQuestion(){
             var btn = document.createElement('button');
             btn.className = 'ans-btn big-word pulse';
             btn.textContent = w;
-            btn.onclick = function(){ handleAnswer(w === q.ans, btn, q.tip); };
+            btn.onclick = function(){ sndClick(); handleAnswer(w === q.ans, btn, q.tip); };
             answers.appendChild(btn);
         });
     }
     /* LEVEL 2: Silent e */
     else if(level.type === 'silente'){
-        card.innerHTML =
+        card.innerHTML = ttsBtn +
             '<div class="card-question">Does this word end with a <strong>silent e</strong>?</div>' +
             '<div class="card-single-word">'+q.word+'</div>';
         answers.classList.add('word-pair');
@@ -683,45 +930,45 @@ function renderQuestion(){
             var btn = document.createElement('button');
             btn.className = 'ans-btn big-word pulse';
             btn.textContent = label;
-            btn.onclick = function(){ handleAnswer(val === q.ans, btn, q.tip); };
+            btn.onclick = function(){ sndClick(); handleAnswer(val === q.ans, btn, q.tip); };
             answers.appendChild(btn);
         });
     }
     /* LEVEL 3: Syllable */
     else if(level.type === 'syllable'){
-        card.innerHTML =
+        card.innerHTML = ttsBtn +
             '<div class="card-question">How do you split this word into syllables?</div>' +
             '<div class="card-single-word">'+q.word+'</div>';
         q.opts.forEach(function(opt,i){
             var btn = document.createElement('button');
             btn.className = 'ans-btn pulse';
             btn.textContent = opt;
-            btn.onclick = function(){ handleAnswer(i === q.ans, btn, q.tip); };
+            btn.onclick = function(){ sndClick(); handleAnswer(i === q.ans, btn, q.tip); };
             answers.appendChild(btn);
         });
     }
     /* LEVEL 4: Word Part */
     else if(level.type === 'wordpart'){
-        card.innerHTML =
+        card.innerHTML = ttsBtn +
             '<div class="card-question">What does this word part mean?</div>' +
             '<div class="card-part">'+q.part+'</div>';
         q.opts.forEach(function(opt,i){
             var btn = document.createElement('button');
             btn.className = 'ans-btn pulse';
             btn.textContent = opt;
-            btn.onclick = function(){ handleAnswer(i === q.ans, btn, q.tip); };
+            btn.onclick = function(){ sndClick(); handleAnswer(i === q.ans, btn, q.tip); };
             answers.appendChild(btn);
         });
     }
     /* LEVEL 5: Story */
     else if(level.type === 'story'){
-        card.innerHTML =
+        card.innerHTML = ttsBtn +
             '<div class="card-question">'+q.q+'</div>';
         q.opts.forEach(function(opt,i){
             var btn = document.createElement('button');
             btn.className = 'ans-btn pulse';
             btn.textContent = opt;
-            btn.onclick = function(){ handleAnswer(i === q.ans, btn, q.tip); };
+            btn.onclick = function(){ sndClick(); handleAnswer(i === q.ans, btn, q.tip); };
             answers.appendChild(btn);
         });
     }
@@ -732,7 +979,7 @@ function renderQuestion(){
     updateProgress();
 }
 
-/* ─── TOGGLE PASSAGE ─── */
+/* --- TOGGLE PASSAGE --- */
 function togglePassage(){
     var content = document.getElementById('passage-content');
     var toggle = document.querySelector('.passage-toggle');
@@ -746,7 +993,7 @@ function togglePassage(){
     }
 }
 
-/* ─── HANDLE ANSWER ─── */
+/* --- HANDLE ANSWER --- */
 function handleAnswer(correct, btn, tip){
     if(state.answered) return;
     state.answered = true;
@@ -756,6 +1003,7 @@ function handleAnswer(correct, btn, tip){
     var fb = $('feedback');
     var cont = $('continue-btn');
     var allBtns = document.querySelectorAll('.ans-btn');
+    var oldPoints = state.points;
 
     /* disable all buttons */
     for(var i=0;i<allBtns.length;i++){
@@ -763,7 +1011,10 @@ function handleAnswer(correct, btn, tip){
         allBtns[i].classList.remove('pulse');
     }
 
+    var feedbackText = '';
+
     if(correct){
+        sndCorrect();
         state.totalCorrect++;
         state.levelCorrect++;
         state.streak++;
@@ -777,14 +1028,17 @@ function handleAnswer(correct, btn, tip){
         }
         btn.classList.add('selected-correct');
         card.classList.add('pop');
+        feedbackText = (state.streak >= 3 ? '+15 pts! Streak bonus! ' : '+10 pts! ') + tip;
         fb.className = 'feedback correct show';
         fb.innerHTML = '<span class="feedback-icon">\u2705</span> ' +
             (state.streak >= 3 ? '<strong>+15 pts! Streak bonus!</strong> ' : '<strong>+10 pts!</strong> ') +
             tip;
     } else {
+        sndWrong();
         state.streak = 0;
         btn.classList.add('selected-wrong');
         card.classList.add('shake');
+        feedbackText = 'Not quite! ' + tip;
         fb.className = 'feedback wrong show';
         fb.innerHTML = '<span class="feedback-icon">\uD83D\uDCA1</span> <strong>Not quite!</strong> ' + tip;
 
@@ -805,12 +1059,26 @@ function handleAnswer(correct, btn, tip){
         }
     }
 
-    updateHeader();
+    /* Animate points counter */
+    animatePoints(oldPoints, state.points);
+    $('streak-num').textContent = state.streak;
+
     cont.classList.add('visible');
+
+    /* Auto-read feedback aloud */
+    setTimeout(function(){ speak(feedbackText); }, 400);
+
+    /* Save progress after each answer */
+    saveProgress();
 }
 
-/* ─── NEXT QUESTION ─── */
+/* --- NEXT QUESTION --- */
 function nextQuestion(){
+    if(advancing) return;
+    advancing = true;
+
+    speechSynthesis.cancel();
+
     var level = LEVELS[state.level];
     state.qi++;
 
@@ -824,11 +1092,13 @@ function nextQuestion(){
         return;
     }
 
+    saveProgress();
     renderQuestion();
 }
 
-/* ─── LEVEL COMPLETE ─── */
+/* --- LEVEL COMPLETE --- */
 function showLevelComplete(){
+    sndLevelUp();
     var msg = LEVEL_COMPLETE_MSG[state.level];
     var content = $('level-done-content');
     content.innerHTML =
@@ -840,16 +1110,17 @@ function showLevelComplete(){
             '<div class="stat-box"><div class="stat-val">'+state.levelCorrect+'/'+LEVELS[state.level].qs.length+'</div><div class="stat-label">Correct</div></div>' +
             '<div class="stat-box"><div class="stat-val">'+state.bestStreak+'</div><div class="stat-label">Best Streak</div></div>' +
         '</div>' +
-        '<button class="next-level-btn" onclick="goNextLevel()">Next Level</button>';
+        '<button class="next-level-btn" onclick="sndClick();goNextLevel()">Next Level</button>';
 
     showScreen('screen-level-done');
     spawnConfetti();
+    advancing = false;
+    saveProgress();
 }
 
-/* ─── GAME COMPLETE ─── */
+/* --- GAME COMPLETE --- */
 function showGameComplete(){
-    /* also show the last level complete message briefly? No, go straight to game done */
-    var msg = LEVEL_COMPLETE_MSG[state.level];
+    sndLevelUp();
     var content = $('game-done-content');
     content.innerHTML =
         '<span class="game-done-icon">\uD83C\uDFC6</span>' +
@@ -861,15 +1132,17 @@ function showGameComplete(){
             '<div class="stat-box"><div class="stat-val">'+state.bestStreak+'</div><div class="stat-label">Best Streak</div></div>' +
         '</div>' +
         '<div class="final-btns">' +
-            '<button class="play-again-btn" onclick="resetGame()">Play Again</button>' +
-            '<a href="index.html"><button class="back-missions-btn">Back to Missions</button></a>' +
+            '<button class="play-again-btn" onclick="sndClick();resetGame()">Play Again</button>' +
+            '<a href="index.html"><button class="back-missions-btn" onclick="sndClick()">Back to Missions</button></a>' +
         '</div>';
 
     showScreen('screen-game-done');
     spawnConfetti();
+    advancing = false;
+    clearProgress();
 }
 
-/* ─── GO NEXT LEVEL ─── */
+/* --- GO NEXT LEVEL --- */
 function goNextLevel(){
     state.level++;
     state.qi = 0;
@@ -877,6 +1150,7 @@ function goNextLevel(){
     state.levelPoints = 0;
 
     buildLevelTabs();
+    saveProgress();
 
     /* Level 5 = story: show passage first */
     if(LEVELS[state.level].type === 'story'){
@@ -888,16 +1162,19 @@ function goNextLevel(){
     renderQuestion();
 }
 
-/* ─── STORY INTRO ─── */
+/* --- STORY INTRO --- */
 function showStoryIntro(){
     var content = $('story-intro-content');
     content.innerHTML =
         '<h3>\uD83D\uDCDC Operation Snow Rescue</h3>' +
         '<p class="subtitle">Read the passage carefully, then answer questions about it.</p>' +
+        '<button class="listen-story-btn" onclick="sndClick();speak(PASSAGE)" style="margin:0 auto 12px">' +
+            '\uD83D\uDD0A Listen to Story' +
+        '</button>' +
         '<div class="passage-box" style="max-height:350px;text-align:left">' +
             PASSAGE.split('\n\n').map(function(p){return '<p>'+p+'</p>';}).join('') +
         '</div>' +
-        '<button class="ready-btn" onclick="startStoryQuestions()">I\'m Ready!</button>';
+        '<button class="ready-btn" onclick="sndClick();startStoryQuestions()">I\'m Ready!</button>';
     showScreen('screen-story-intro');
 }
 
@@ -907,7 +1184,7 @@ function startStoryQuestions(){
     renderQuestion();
 }
 
-/* ─── START GAME ─── */
+/* --- START GAME --- */
 function startGame(){
     state.level = 0;
     state.qi = 0;
@@ -919,16 +1196,62 @@ function startGame(){
     state.levelCorrect = 0;
     state.levelPoints = 0;
 
+    clearProgress();
     buildLevelTabs();
     updateHeader();
+    $('points-badge').textContent = '0 pts';
     showScreen('screen-game');
     renderQuestion();
 }
 
-/* ─── RESET GAME ─── */
-function resetGame(){
-    showScreen('screen-intro');
+/* --- RESUME GAME FROM SAVED PROGRESS --- */
+function resumeGame(saved){
+    state.level = saved.li || 0;
+    state.qi = saved.qi || 0;
+    state.points = saved.score || 0;
+    state.streak = saved.streak || 0;
+    state.bestStreak = saved.best || 0;
+    state.totalCorrect = saved.totalHit || 0;
+    state.totalQuestions = saved.totalQ || 0;
+    state.levelCorrect = saved.lvlHit || 0;
+    state.levelPoints = saved.lvlPts || 0;
+    state.passageVisible = saved.passVis !== false;
+
+    buildLevelTabs();
+    $('streak-num').textContent = state.streak;
+    $('points-badge').textContent = state.points + ' pts';
+
+    if(LEVELS[state.level] && LEVELS[state.level].type === 'story' && state.qi === 0){
+        showStoryIntro();
+    } else {
+        showScreen('screen-game');
+        renderQuestion();
+    }
 }
+
+/* --- RESET GAME --- */
+function resetGame(){
+    clearProgress();
+    showScreen('screen-intro');
+    $('resume-prompt').innerHTML = '';
+}
+
+/* --- CHECK FOR SAVED PROGRESS ON LOAD --- */
+(function(){
+    var saved = loadProgress();
+    if(saved && saved.li != null && (saved.li > 0 || saved.qi > 0)){
+        var levelName = LEVELS[saved.li] ? LEVELS[saved.li].name : 'Level ' + (saved.li+1);
+        var prompt = $('resume-prompt');
+        prompt.innerHTML =
+            '<div class="resume-prompt">' +
+                '<p>Continue where you left off?<br>' + levelName + ' \u2014 ' + (saved.score||0) + ' pts</p>' +
+                '<div class="resume-btns">' +
+                    '<button class="resume-btn yes" onclick="sndClick();resumeGame(' + JSON.stringify(saved).replace(/"/g,'&quot;') + ')">Continue</button>' +
+                    '<button class="resume-btn no" onclick="sndClick();clearProgress();this.parentNode.parentNode.parentNode.innerHTML=\'\'">Start Over</button>' +
+                '</div>' +
+            '</div>';
+    }
+})();
 </script>
 </body>
 </html>

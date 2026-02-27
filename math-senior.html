@@ -22,7 +22,7 @@
         body{
             font-family:'DM Sans',system-ui,sans-serif;
             background:var(--bg);color:var(--text);
-            min-height:100dvh;display:flex;flex-direction:column;
+            min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
             align-items:center;padding:0 16px 60px;
             overflow-x:hidden;-webkit-font-smoothing:antialiased;
             position:relative;
@@ -61,6 +61,7 @@
         @keyframes firePop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
         @keyframes slideOpen{from{max-height:0;opacity:0;margin-top:0}to{max-height:120px;opacity:1;margin-top:12px}}
         @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+        @keyframes ptsPop{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-28px);opacity:0}}
         .anim-pop{animation:pop .35s ease}
         .anim-shake{animation:shake .4s ease}
         .anim-fire{animation:firePop .4s ease}
@@ -82,7 +83,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.2rem;
             background:var(--accent);color:#fff;
             border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
-            padding:14px 48px;cursor:pointer;
+            padding:14px 48px;cursor:pointer;min-height:48px;
             transition:transform .1s,border-bottom-width .1s;
             -webkit-tap-highlight-color:transparent;
         }
@@ -97,7 +98,7 @@
         .back-link{
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:.95rem;
             color:var(--text);text-decoration:none;
-            display:flex;align-items:center;gap:4px;
+            display:flex;align-items:center;gap:4px;min-height:48px;
         }
         .back-link:hover{opacity:.7}
         .game-logo{font-size:1.3rem}
@@ -105,9 +106,15 @@
             display:flex;align-items:center;gap:10px;
             background:var(--card);border:2px solid var(--border);border-radius:20px;
             padding:5px 14px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.9rem;
+            position:relative;
         }
         .streak-num{color:var(--accent)}
-        .pts-num{color:var(--ok)}
+        .pts-num{color:var(--ok);display:inline-block;transition:transform .2s ease}
+        .pts-pop{
+            position:absolute;right:14px;top:-8px;
+            font-size:.75rem;font-weight:700;color:var(--ok);
+            pointer-events:none;animation:ptsPop .7s ease-out forwards;
+        }
 
         /* ---- LEVEL TABS ---- */
         .level-tabs{
@@ -122,7 +129,8 @@
             padding:6px 14px;border-radius:12px;
             border:2px solid var(--border);background:var(--card);
             cursor:pointer;transition:all .15s;white-space:nowrap;
-            -webkit-tap-highlight-color:transparent;
+            -webkit-tap-highlight-color:transparent;min-height:48px;
+            display:flex;align-items:center;
         }
         .lvl-tab.current{
             background:var(--accent-bg);border-color:var(--accent);
@@ -148,6 +156,7 @@
             border-radius:20px;padding:24px 20px;
             box-shadow:4px 4px 0 var(--border);
             margin-bottom:16px;
+            position:relative;
         }
         .q-label{
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;
@@ -157,17 +166,31 @@
         .q-text{
             font-family:'Fredoka',sans-serif;font-weight:700;
             font-size:1.35rem;line-height:1.4;letter-spacing:-.3px;
+            padding-right:44px;
         }
+
+        /* ---- TTS BUTTON ---- */
+        .btn-tts{
+            position:absolute;top:14px;right:14px;
+            width:40px;height:40px;min-height:40px;border-radius:50%;
+            border:2px solid var(--border);background:var(--card);
+            cursor:pointer;font-size:1.1rem;line-height:1;
+            display:flex;align-items:center;justify-content:center;
+            -webkit-tap-highlight-color:transparent;
+            transition:background .15s,transform .1s;
+        }
+        .btn-tts:hover{background:var(--accent-bg)}
+        .btn-tts:active{transform:scale(.9)}
 
         /* ---- ANSWER BUTTONS ---- */
         .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
-        .opts-row{display:flex;gap:8px;margin-bottom:4px}
-        .opts-row .opt-btn{flex:1}
+        .opts-col{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+        .opts-col .opt-btn{width:100%}
         .opt-btn{
             font-family:'DM Sans',sans-serif;font-weight:700;font-size:1.05rem;
             background:var(--card);color:var(--text);
             border:3px solid var(--border);border-bottom-width:5px;border-radius:14px;
-            padding:14px 10px;cursor:pointer;
+            padding:14px 10px;cursor:pointer;min-height:48px;
             transition:transform .1s,border-bottom-width .1s,background .15s,border-color .15s;
             -webkit-tap-highlight-color:transparent;
             text-align:center;line-height:1.3;
@@ -202,7 +225,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.1rem;
             background:var(--ok);color:#fff;
             border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
-            padding:14px;cursor:pointer;
+            padding:14px;cursor:pointer;min-height:48px;
             transition:transform .1s,border-bottom-width .1s;
             -webkit-tap-highlight-color:transparent;
         }
@@ -236,7 +259,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.1rem;
             background:var(--accent);color:#fff;
             border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
-            padding:14px 40px;cursor:pointer;
+            padding:14px 40px;cursor:pointer;min-height:48px;
             transition:transform .1s,border-bottom-width .1s;
             -webkit-tap-highlight-color:transparent;
         }
@@ -261,7 +284,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;
             background:var(--card);color:var(--text);
             border:3px solid var(--border);border-bottom-width:5px;border-radius:16px;
-            padding:12px 28px;cursor:pointer;
+            padding:12px 28px;cursor:pointer;min-height:48px;
             transition:transform .1s,border-bottom-width .1s;
             text-decoration:none;display:inline-block;
             -webkit-tap-highlight-color:transparent;
@@ -269,13 +292,50 @@
         .btn-outline:hover{transform:translateY(-2px)}
         .btn-outline:active{transform:translateY(2px);border-bottom-width:3px}
 
-        /* ---- RESPONSIVE ---- */
+        /* ---- RESPONSIVE: small phones ---- */
         @media(max-width:380px){
             .intro h1{font-size:1.7rem}
             .q-text{font-size:1.15rem}
             .opt-btn{padding:12px 8px;font-size:.95rem}
             .level-done h2{font-size:1.4rem}
             .game-done h2{font-size:1.5rem}
+        }
+
+        /* ---- RESPONSIVE: tablet ---- */
+        @media(min-width:768px){
+            .wrap{max-width:640px}
+            .q-text{font-size:1.5rem}
+            .q-card{padding:32px 28px}
+            .opt-btn{padding:18px 14px;font-size:1.15rem}
+            .btn-go{padding:18px 56px;font-size:1.3rem}
+            .btn-continue{padding:18px;font-size:1.2rem}
+            .btn-next{padding:18px 48px;font-size:1.2rem}
+            .intro h1{font-size:2.4rem}
+            .intro p{font-size:1.2rem}
+            .stats-pill{font-size:1rem;padding:7px 18px}
+            .lvl-tab{font-size:.85rem;padding:8px 18px}
+        }
+
+        /* ---- RESPONSIVE: desktop ---- */
+        @media(min-width:1024px){
+            .wrap{max-width:720px}
+            .q-text{font-size:1.65rem}
+            .q-card{padding:36px 32px}
+            .opt-btn{padding:20px 16px;font-size:1.2rem}
+            .btn-go{padding:20px 64px;font-size:1.35rem}
+            .btn-continue{padding:20px;font-size:1.25rem}
+            .btn-next{padding:20px 56px;font-size:1.25rem}
+            .intro h1{font-size:2.6rem}
+        }
+
+        /* ---- ACCESSIBILITY: reduced motion ---- */
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{
+                animation-duration:0.01ms !important;
+                animation-iteration-count:1 !important;
+                transition-duration:0.01ms !important;
+            }
+            .snow,.confetti-wrap{display:none !important}
         }
     </style>
 </head>
@@ -300,7 +360,7 @@
         <div class="game-header">
             <a href="index.html" class="back-link">&#x2190; Back</a>
             <span class="game-logo">&#x1F680;</span>
-            <div class="stats-pill">
+            <div class="stats-pill" id="stats-pill">
                 <span>&#x1F525; <span class="streak-num" id="streak-display">0</span></span>
                 <span>&#x2B50; <span class="pts-num" id="pts-display">0</span></span>
             </div>
@@ -361,6 +421,61 @@
 <div class="confetti-wrap" id="confetti-wrap"></div>
 
 <script>
+/* ---- SOUND EFFECTS (Web Audio API) ---- */
+var AudioCtx = window.AudioContext || window.webkitAudioContext;
+var _actx;
+function actx(){ if(!_actx) _actx = new AudioCtx(); return _actx; }
+
+function sndCorrect(){
+    var c=actx(),t=c.currentTime;
+    [523.25,659.25].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.12);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.3);
+        o.start(t+i*0.12);o.stop(t+i*0.12+0.3);
+    });
+}
+function sndWrong(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.type='triangle';o.connect(g);g.connect(c.destination);
+    o.frequency.setValueAtTime(200,t);
+    o.frequency.linearRampToValueAtTime(140,t+0.25);
+    g.gain.setValueAtTime(0.18,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    o.start(t);o.stop(t+0.3);
+}
+function sndLevelUp(){
+    var c=actx(),t=c.currentTime;
+    [523.25,659.25,783.99].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.15);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.45);
+        o.start(t+i*0.15);o.stop(t+i*0.15+0.45);
+    });
+}
+function sndClick(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.frequency.value=880;
+    g.gain.setValueAtTime(0.08,t);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+    o.start(t);o.stop(t+0.06);
+}
+
+/* ---- TTS ---- */
+function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+    u.rate = 0.85;
+    u.pitch = 1.1;
+    speechSynthesis.speak(u);
+}
+
 /* ---- QUESTION DATA ---- */
 var LEVELS = [
     {name:"Number Sense",subtitle:"Before, after, and in order!",qs:[
@@ -407,18 +522,37 @@ var LEVEL_MSGS = [
 ];
 
 /* ---- STATE ---- */
-var curLevel = 0;
-var curQ = 0;
-var points = 0;
-var streak = 0;
-var bestStreak = 0;
-var totalCorrect = 0;
-var totalQuestions = 0;
-var levelCorrect = 0;
-var levelPoints = 0;
-var levelBestStreak = 0;
-var answered = false;
-var levelsCompleted = [];
+var S = {
+    li: 0,       /* level index */
+    qi: 0,       /* question index */
+    score: 0,    /* total points */
+    streak: 0,
+    best: 0,     /* best streak ever */
+    totalHit: 0, /* total correct */
+    totalQ: 0,   /* total questions seen */
+    lvlHit: 0,   /* correct this level */
+    lvlPts: 0,   /* points this level */
+    lvlBest: 0,  /* best streak this level */
+    done: [],    /* completed level indices */
+    answered: false
+};
+
+/* ---- LOCALSTORAGE ---- */
+var SAVE_KEY = 'math-sr-progress';
+function saveProgress(){
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+        li:S.li, qi:S.qi, score:S.score, streak:S.streak,
+        best:S.best, totalHit:S.totalHit, totalQ:S.totalQ,
+        done:S.done
+    }));
+}
+function loadProgress(){
+    var d = localStorage.getItem(SAVE_KEY);
+    return d ? JSON.parse(d) : null;
+}
+function clearProgress(){
+    localStorage.removeItem(SAVE_KEY);
+}
 
 /* ---- DOM ---- */
 var introScreen = document.getElementById('intro-screen');
@@ -433,11 +567,42 @@ var feedbackInner = document.getElementById('feedback-inner');
 var btnContinue = document.getElementById('btn-continue');
 var streakDisplay = document.getElementById('streak-display');
 var ptsDisplay = document.getElementById('pts-display');
+var statsPill = document.getElementById('stats-pill');
 
 function showScreen(id) {
     var screens = document.querySelectorAll('.screen');
     for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
     document.getElementById(id).classList.add('active');
+}
+
+/* ---- ANIMATED POINTS COUNTER ---- */
+var _ptsAnimTarget = 0;
+var _ptsAnimCurrent = 0;
+var _ptsAnimFrame = 0;
+
+function animatePoints(newTotal){
+    _ptsAnimTarget = newTotal;
+    if (_ptsAnimFrame) return;
+    function tick(){
+        if (_ptsAnimCurrent < _ptsAnimTarget) {
+            var diff = _ptsAnimTarget - _ptsAnimCurrent;
+            var step = Math.max(1, Math.ceil(diff / 8));
+            _ptsAnimCurrent = Math.min(_ptsAnimCurrent + step, _ptsAnimTarget);
+            ptsDisplay.textContent = _ptsAnimCurrent;
+            _ptsAnimFrame = requestAnimationFrame(tick);
+        } else {
+            _ptsAnimFrame = 0;
+        }
+    }
+    _ptsAnimFrame = requestAnimationFrame(tick);
+}
+
+function showPointsPop(earned){
+    var el = document.createElement('span');
+    el.className = 'pts-pop';
+    el.textContent = '+' + earned;
+    statsPill.appendChild(el);
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 750);
 }
 
 /* ---- LEVEL TABS ---- */
@@ -447,28 +612,27 @@ function renderTabs() {
         var tab = document.createElement('button');
         tab.className = 'lvl-tab';
         tab.textContent = (i + 1) + '. ' + LEVELS[i].name;
-        if (i === curLevel) tab.classList.add('current');
-        else if (levelsCompleted.indexOf(i) !== -1) tab.classList.add('done');
-        else if (i > curLevel) tab.classList.add('locked');
+        if (i === S.li) tab.classList.add('current');
+        else if (S.done.indexOf(i) !== -1) tab.classList.add('done');
+        else if (i > S.li) tab.classList.add('locked');
         levelTabs.appendChild(tab);
     }
-    /* scroll current tab into view */
     var current = levelTabs.querySelector('.current');
     if (current) current.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
 }
 
 /* ---- PROGRESS ---- */
 function updateProgress() {
-    var level = LEVELS[curLevel];
-    var pct = level ? ((curQ / level.qs.length) * 100) : 100;
+    var level = LEVELS[S.li];
+    var pct = level ? ((S.qi / level.qs.length) * 100) : 100;
     progressFill.style.width = pct + '%';
 }
 
 /* ---- STATS ---- */
 function updateStats() {
-    streakDisplay.textContent = streak;
-    ptsDisplay.textContent = points;
-    if (streak >= 3) {
+    streakDisplay.textContent = S.streak;
+    animatePoints(S.score);
+    if (S.streak >= 3) {
         streakDisplay.parentElement.classList.add('anim-fire');
         setTimeout(function(){ streakDisplay.parentElement.classList.remove('anim-fire'); }, 400);
     }
@@ -476,21 +640,24 @@ function updateStats() {
 
 /* ---- RENDER QUESTION ---- */
 function renderQuestion() {
-    answered = false;
+    S.answered = false;
     feedback.classList.remove('show');
     btnContinue.classList.remove('show');
 
-    var level = LEVELS[curLevel];
-    var q = level.qs[curQ];
+    var level = LEVELS[S.li];
+    var q = level.qs[S.qi];
     var isOrdering = q.opts.length === 3;
 
+    var qPlain = q.q.replace(/\n/g, ' ');
+
     var html = '<div class="q-card anim-fadeUp">';
-    html += '<div class="q-label">' + level.name + ' \u2022 Question ' + (curQ + 1) + ' of ' + level.qs.length + '</div>';
+    html += '<button class="btn-tts" onclick="speak(\'' + qPlain.replace(/'/g, "\\'") + '\')" aria-label="Read question aloud">&#x1F50A;</button>';
+    html += '<div class="q-label">' + level.name + ' \u2022 Question ' + (S.qi + 1) + ' of ' + level.qs.length + '</div>';
     html += '<div class="q-text">' + q.q.replace(/\n/g, '<br>') + '</div>';
     html += '</div>';
 
     if (isOrdering) {
-        html += '<div class="opts-row">';
+        html += '<div class="opts-col">';
     } else {
         html += '<div class="opts-grid">';
     }
@@ -505,15 +672,16 @@ function renderQuestion() {
 
 /* ---- PICK ANSWER ---- */
 function pickAnswer(idx) {
-    if (answered) return;
-    answered = true;
+    if (S.answered) return;
+    S.answered = true;
+    sndClick();
 
-    var level = LEVELS[curLevel];
-    var q = level.qs[curQ];
+    var level = LEVELS[S.li];
+    var q = level.qs[S.qi];
     var correct = idx === q.ans;
     var btns = questionArea.querySelectorAll('.opt-btn');
 
-    totalQuestions++;
+    S.totalQ++;
 
     for (var i = 0; i < btns.length; i++) {
         btns[i].classList.add('locked');
@@ -527,25 +695,28 @@ function pickAnswer(idx) {
     }
 
     if (correct) {
-        streak++;
-        totalCorrect++;
-        levelCorrect++;
+        S.streak++;
+        S.totalHit++;
+        S.lvlHit++;
         var earned = 10;
-        if (streak >= 3) earned += 5;
-        points += earned;
-        levelPoints += earned;
-        if (streak > bestStreak) bestStreak = streak;
-        if (streak > levelBestStreak) levelBestStreak = streak;
+        if (S.streak >= 3) earned += 5;
+        S.score += earned;
+        S.lvlPts += earned;
+        if (S.streak > S.best) S.best = S.streak;
+        if (S.streak > S.lvlBest) S.lvlBest = S.streak;
 
+        sndCorrect();
+        showPointsPop(earned);
         btns[idx].classList.add('anim-pop');
         feedbackInner.className = 'feedback-inner ok';
         var msg = '<span class="feedback-emoji">&#x2705;</span> ';
-        if (streak >= 3) msg += '<strong>&#x1F525; ' + streak + ' streak!</strong> +' + earned + ' pts! ';
+        if (S.streak >= 3) msg += '<strong>&#x1F525; ' + S.streak + ' streak!</strong> +' + earned + ' pts! ';
         else msg += '<strong>Nice!</strong> +' + earned + ' pts! ';
         msg += q.tip;
         feedbackInner.innerHTML = msg;
     } else {
-        streak = 0;
+        S.streak = 0;
+        sndWrong();
         btns[idx].classList.add('anim-shake');
         feedbackInner.className = 'feedback-inner no';
         feedbackInner.innerHTML = '<span class="feedback-emoji">&#x1F914;</span> <strong>Not quite!</strong> ' + q.tip;
@@ -554,13 +725,23 @@ function pickAnswer(idx) {
     feedback.classList.add('show');
     btnContinue.classList.add('show');
     updateStats();
+    saveProgress();
+
+    /* auto-read tips */
+    speak(q.tip);
 }
 
-/* ---- CONTINUE ---- */
+/* ---- CONTINUE (with double-click guard) ---- */
+var _continueDisabled = false;
 btnContinue.addEventListener('click', function() {
-    curQ++;
-    var level = LEVELS[curLevel];
-    if (curQ >= level.qs.length) {
+    if (_continueDisabled) return;
+    _continueDisabled = true;
+    sndClick();
+    setTimeout(function(){ _continueDisabled = false; }, 400);
+
+    S.qi++;
+    var level = LEVELS[S.li];
+    if (S.qi >= level.qs.length) {
         showLevelComplete();
     } else {
         renderQuestion();
@@ -569,30 +750,34 @@ btnContinue.addEventListener('click', function() {
 
 /* ---- LEVEL COMPLETE ---- */
 function showLevelComplete() {
-    levelsCompleted.push(curLevel);
+    if (S.done.indexOf(S.li) === -1) S.done.push(S.li);
     showScreen('level-done-screen');
     spawnConfetti();
+    sndLevelUp();
 
-    var msg = LEVEL_MSGS[curLevel];
+    var msg = LEVEL_MSGS[S.li];
     document.getElementById('ld-title').textContent = msg.t;
     document.getElementById('ld-desc').textContent = msg.d;
-    document.getElementById('ld-correct').textContent = levelCorrect + '/' + LEVELS[curLevel].qs.length;
-    document.getElementById('ld-streak').textContent = levelBestStreak;
-    document.getElementById('ld-points').textContent = levelPoints;
-    document.getElementById('ld-total').textContent = points;
+    document.getElementById('ld-correct').textContent = S.lvlHit + '/' + LEVELS[S.li].qs.length;
+    document.getElementById('ld-streak').textContent = S.lvlBest;
+    document.getElementById('ld-points').textContent = S.lvlPts;
+    document.getElementById('ld-total').textContent = S.score;
 
     var btnNext = document.getElementById('btn-next-level');
-    if (curLevel >= LEVELS.length - 1) {
+    if (S.li >= LEVELS.length - 1) {
         btnNext.innerHTML = 'See Results &#x1F3C6;';
     } else {
         btnNext.innerHTML = 'Next Level &#x27A1;&#xFE0F;';
     }
+
+    saveProgress();
 }
 
 /* ---- NEXT LEVEL ---- */
 document.getElementById('btn-next-level').addEventListener('click', function() {
-    curLevel++;
-    if (curLevel >= LEVELS.length) {
+    sndClick();
+    S.li++;
+    if (S.li >= LEVELS.length) {
         showGameComplete();
     } else {
         startLevel();
@@ -601,10 +786,10 @@ document.getElementById('btn-next-level').addEventListener('click', function() {
 
 /* ---- START LEVEL ---- */
 function startLevel() {
-    curQ = 0;
-    levelCorrect = 0;
-    levelPoints = 0;
-    levelBestStreak = 0;
+    S.qi = 0;
+    S.lvlHit = 0;
+    S.lvlPts = 0;
+    S.lvlBest = 0;
     showScreen('game-screen');
     renderTabs();
     renderQuestion();
@@ -615,29 +800,42 @@ function startLevel() {
 function showGameComplete() {
     showScreen('game-done-screen');
     spawnConfetti();
-    document.getElementById('final-score').textContent = points;
-    document.getElementById('gd-correct').textContent = totalCorrect + '/' + totalQuestions;
-    document.getElementById('gd-streak').textContent = bestStreak;
+    sndLevelUp();
+    document.getElementById('final-score').textContent = S.score;
+    document.getElementById('gd-correct').textContent = S.totalHit + '/' + S.totalQ;
+    document.getElementById('gd-streak').textContent = S.best;
+    clearProgress();
 }
 
 /* ---- PLAY AGAIN ---- */
 document.getElementById('btn-play-again').addEventListener('click', function() {
-    curLevel = 0;
-    curQ = 0;
-    points = 0;
-    streak = 0;
-    bestStreak = 0;
-    totalCorrect = 0;
-    totalQuestions = 0;
-    levelCorrect = 0;
-    levelPoints = 0;
-    levelBestStreak = 0;
-    levelsCompleted = [];
+    sndClick();
+    S.li = 0; S.qi = 0; S.score = 0; S.streak = 0; S.best = 0;
+    S.totalHit = 0; S.totalQ = 0; S.lvlHit = 0; S.lvlPts = 0; S.lvlBest = 0;
+    S.done = [];
+    _ptsAnimCurrent = 0; _ptsAnimTarget = 0;
+    ptsDisplay.textContent = '0';
+    clearProgress();
     startLevel();
 });
 
 /* ---- START GAME ---- */
 document.getElementById('btn-start').addEventListener('click', function() {
+    sndClick();
+    /* Check for saved progress */
+    var saved = loadProgress();
+    if (saved && saved.li > 0) {
+        S.li = saved.li;
+        S.qi = saved.qi;
+        S.score = saved.score;
+        S.streak = saved.streak;
+        S.best = saved.best;
+        S.totalHit = saved.totalHit;
+        S.totalQ = saved.totalQ || 0;
+        S.done = saved.done || [];
+        _ptsAnimCurrent = S.score;
+        ptsDisplay.textContent = S.score;
+    }
     startLevel();
 });
 

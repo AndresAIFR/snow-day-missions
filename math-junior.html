@@ -22,14 +22,14 @@
         body{
             font-family:'DM Sans',system-ui,sans-serif;
             background:var(--bg);color:var(--text);
-            min-height:100dvh;display:flex;flex-direction:column;
+            min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
             align-items:center;padding:0 16px 60px;
             overflow-x:hidden;-webkit-font-smoothing:antialiased;
             position:relative;
         }
         .wrap{width:100%;max-width:460px;position:relative;z-index:1}
 
-        /* ─── SNOWFLAKES ─── */
+        /* --- SNOWFLAKES --- */
         .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
         .flake{
             position:absolute;top:-20px;color:#B8D4E8;opacity:.6;
@@ -41,12 +41,12 @@
             100%{transform:translateY(calc(100vh + 40px)) rotate(var(--spin,360deg))}
         }
 
-        /* ─── SCREENS ─── */
+        /* --- SCREENS --- */
         .screen{display:none;animation:fadeUp .4s ease both}
         .screen.active{display:block}
         @keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-        /* ─── INTRO SCREEN ─── */
+        /* --- INTRO SCREEN --- */
         .intro{text-align:center;padding-top:80px}
         .intro-icon{font-size:4rem;display:block;margin-bottom:12px;animation:bounce .7s cubic-bezier(.34,1.56,.64,1)}
         .intro h1{
@@ -56,7 +56,23 @@
         .intro p{color:var(--text-mid);font-size:1.1rem;line-height:1.6;margin-bottom:32px}
         @keyframes bounce{0%{transform:scale(0)}65%{transform:scale(1.15)}100%{transform:scale(1)}}
 
-        /* ─── GAME HEADER ─── */
+        /* --- RESUME PROMPT --- */
+        .resume-prompt{
+            background:var(--card);border:3px solid var(--border);
+            border-radius:16px;padding:20px;margin-bottom:24px;
+            box-shadow:3px 3px 0 var(--border);text-align:center;
+        }
+        .resume-prompt p{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;margin-bottom:12px;color:var(--text)}
+        .resume-prompt .resume-btns{display:flex;gap:10px;justify-content:center}
+        .resume-prompt .resume-btns button{
+            padding:10px 24px;border-radius:12px;border:2px solid var(--border);
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.9rem;
+            cursor:pointer;min-height:48px;
+        }
+        .resume-prompt .btn-resume{background:var(--ok);color:#fff}
+        .resume-prompt .btn-restart{background:var(--card);color:var(--text)}
+
+        /* --- GAME HEADER --- */
         .game-header{
             display:flex;align-items:center;justify-content:space-between;
             padding:16px 0 12px;gap:8px;
@@ -65,6 +81,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;
             font-size:.9rem;color:var(--text-mid);text-decoration:none;
             display:flex;align-items:center;gap:4px;flex-shrink:0;
+            min-height:48px;
         }
         .back-link:hover{color:var(--text)}
         .game-logo{
@@ -77,9 +94,16 @@
             background:var(--border);color:#fff;
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;
             padding:4px 12px;border-radius:20px;white-space:nowrap;
+            transition:transform .15s ease;
+        }
+        .points-pill.bump{animation:pointsBump .35s ease}
+        @keyframes pointsBump{
+            0%{transform:scale(1)}
+            40%{transform:scale(1.25)}
+            100%{transform:scale(1)}
         }
 
-        /* ─── LEVEL TABS ─── */
+        /* --- LEVEL TABS --- */
         .level-tabs{
             display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;
             -webkit-overflow-scrolling:touch;scrollbar-width:none;
@@ -91,7 +115,7 @@
             font-family:'Fredoka',sans-serif;font-weight:600;font-size:.72rem;
             border:2px solid var(--border);border-radius:12px;
             background:var(--card);cursor:pointer;white-space:nowrap;
-            transition:all .15s;
+            transition:all .15s;min-height:48px;display:flex;align-items:center;justify-content:center;
         }
         .level-tab.current{
             font-weight:700;box-shadow:2px 2px 0 var(--border);
@@ -102,7 +126,7 @@
         }
         .level-tab.locked{opacity:.25;cursor:default}
 
-        /* ─── PROGRESS BAR ─── */
+        /* --- PROGRESS BAR --- */
         .progress-wrap{margin-bottom:16px}
         .progress-label{
             font-family:'Fredoka',sans-serif;font-weight:600;
@@ -117,8 +141,9 @@
             transition:width .4s ease;
         }
 
-        /* ─── QUESTION CARD ─── */
+        /* --- QUESTION CARD --- */
         .q-card{
+            position:relative;
             background:var(--card);border:3px solid var(--border);
             border-radius:20px;padding:28px 22px;
             box-shadow:4px 4px 0 var(--border);margin-bottom:16px;
@@ -132,6 +157,7 @@
         .q-card .q-text{
             font-family:'Fredoka',sans-serif;font-weight:700;
             font-size:1.25rem;line-height:1.5;letter-spacing:-.2px;
+            padding-right:40px;
         }
         .q-card .compare-display{
             font-family:'Fredoka',sans-serif;font-weight:700;
@@ -146,7 +172,19 @@
         }
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-        /* ─── ANSWER BUTTONS ─── */
+        /* --- TTS BUTTON --- */
+        .tts-btn{
+            position:absolute;top:10px;right:10px;width:40px;height:40px;
+            border-radius:50%;border:2px solid var(--border);
+            background:var(--accent-bg);font-size:1.2rem;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            transition:transform .1s;z-index:2;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .tts-btn:hover{transform:scale(1.1)}
+        .tts-btn:active{transform:scale(0.95)}
+
+        /* --- ANSWER BUTTONS --- */
         .answers{margin-bottom:12px}
         .answers-grid{
             display:grid;grid-template-columns:1fr 1fr;gap:8px;
@@ -162,6 +200,7 @@
             cursor:pointer;transition:all .1s;
             -webkit-tap-highlight-color:transparent;
             text-align:center;word-break:break-word;
+            min-height:48px;
         }
         .ans-btn:hover:not(:disabled){transform:translateY(-2px)}
         .ans-btn:active:not(:disabled){
@@ -180,7 +219,7 @@
             font-size:2rem;flex:1;max-width:100px;padding:12px 10px;
         }
 
-        /* ─── FEEDBACK ─── */
+        /* --- FEEDBACK --- */
         .feedback{
             max-height:0;opacity:0;overflow:hidden;
             transition:max-height .35s ease,opacity .35s ease;
@@ -199,7 +238,7 @@
         }
         .feedback-tip{font-size:.92rem;line-height:1.5;color:var(--text-mid)}
 
-        /* ─── CONTINUE BUTTON ─── */
+        /* --- CONTINUE BUTTON --- */
         .continue-btn{
             display:none;width:100%;padding:16px;
             background:#16A34A;color:#fff;border:3px solid var(--border);
@@ -207,6 +246,7 @@
             font-family:'Fredoka',sans-serif;font-weight:700;
             font-size:1.1rem;cursor:pointer;
             transition:all .1s;-webkit-tap-highlight-color:transparent;
+            min-height:48px;
         }
         .continue-btn.show{display:block}
         .continue-btn:hover{transform:translateY(-2px)}
@@ -214,7 +254,7 @@
             transform:translateY(4px);border-bottom-width:3px;
         }
 
-        /* ─── PRIMARY BUTTON (intro, level complete, game complete) ─── */
+        /* --- PRIMARY BUTTON (intro, level complete, game complete) --- */
         .btn-primary{
             display:inline-block;padding:16px 40px;
             background:var(--ok);color:#fff;border:3px solid var(--border);
@@ -222,13 +262,14 @@
             font-family:'Fredoka',sans-serif;font-weight:700;
             font-size:1.15rem;cursor:pointer;
             transition:all .1s;-webkit-tap-highlight-color:transparent;
+            min-height:48px;
         }
         .btn-primary:hover{transform:translateY(-2px)}
         .btn-primary:active{
             transform:translateY(4px);border-bottom-width:3px;
         }
 
-        /* ─── LEVEL COMPLETE / GAME COMPLETE ─── */
+        /* --- LEVEL COMPLETE / GAME COMPLETE --- */
         .complete-screen{text-align:center;padding-top:60px}
         .complete-icon{font-size:4rem;display:block;margin-bottom:12px;animation:bounce .7s cubic-bezier(.34,1.56,.64,1)}
         .complete-screen h2{
@@ -263,10 +304,11 @@
             font-family:'Fredoka',sans-serif;font-weight:600;
             font-size:.95rem;color:var(--text-mid);
             text-decoration:underline;cursor:pointer;
+            min-height:48px;line-height:48px;
         }
         .link-btn:hover{color:var(--text)}
 
-        /* ─── CONFETTI ─── */
+        /* --- CONFETTI --- */
         .confetti-wrap{
             position:fixed;top:0;left:0;width:100%;height:100%;
             pointer-events:none;z-index:100;overflow:hidden;
@@ -281,7 +323,7 @@
             100%{transform:translateY(100vh) rotate(var(--cspin,720deg));opacity:0}
         }
 
-        /* ─── ANIMATIONS ─── */
+        /* --- ANIMATIONS --- */
         @keyframes shake{
             0%,100%{transform:translateX(0)}
             15%{transform:translateX(-8px)}
@@ -299,7 +341,7 @@
         .shake{animation:shake .45s ease}
         .pop{animation:pop .4s ease}
 
-        /* ─── RESPONSIVE ─── */
+        /* --- RESPONSIVE: SMALL --- */
         @media(max-width:380px){
             .intro h1{font-size:1.8rem}
             .q-card .q-text{font-size:1.1rem}
@@ -308,6 +350,41 @@
             .ans-btn.compare{font-size:1.6rem}
             .game-logo{font-size:.85rem}
             .level-tab{font-size:.65rem;padding:6px 2px}
+        }
+
+        /* --- RESPONSIVE: TABLET --- */
+        @media(min-width:768px){
+            .wrap{max-width:640px}
+            .q-card .q-text{font-size:1.5rem}
+            .q-card{padding:34px 28px}
+            .ans-btn{padding:18px 14px;font-size:1.1rem}
+            .ans-btn.compare{font-size:2.2rem;max-width:120px}
+            .btn-primary{padding:18px 48px;font-size:1.2rem}
+            .continue-btn{padding:18px;font-size:1.15rem}
+            .intro h1{font-size:2.6rem}
+            .intro p{font-size:1.2rem}
+            .complete-screen h2{font-size:2.1rem}
+            .feedback-title{font-size:1.2rem}
+            .feedback-tip{font-size:1rem}
+        }
+
+        /* --- RESPONSIVE: DESKTOP --- */
+        @media(min-width:1024px){
+            .wrap{max-width:720px}
+            .q-card .q-text{font-size:1.65rem}
+            .q-card{padding:38px 32px}
+            .ans-btn{padding:20px 16px;font-size:1.15rem}
+            .intro h1{font-size:2.8rem}
+        }
+
+        /* --- ACCESSIBILITY: REDUCED MOTION --- */
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{
+                animation-duration:0.01ms!important;
+                animation-iteration-count:1!important;
+                transition-duration:0.01ms!important;
+            }
+            .snow,.flake{display:none!important}
         }
     </style>
 </head>
@@ -323,7 +400,8 @@
             <span class="intro-icon">&#x1F50D;</span>
             <h1>Number Detectives</h1>
             <p>Solve cases with patterns, place value, and money!</p>
-            <button class="btn-primary" onclick="startGame()">Let's Go!</button>
+            <div id="resume-area"></div>
+            <button class="btn-primary" id="start-btn" onclick="startGame()">Let's Go!</button>
         </div>
     </div>
 
@@ -346,6 +424,7 @@
             <div class="q-level-tag" id="q-level-tag"></div>
             <div class="q-text" id="q-text"></div>
             <div class="compare-display" id="compare-display" style="display:none"></div>
+            <button class="tts-btn" id="tts-btn" onclick="speakQuestion()" aria-label="Read question aloud" title="Read to Me">&#x1F50A;</button>
         </div>
         <div class="answers" id="answers"></div>
         <div class="feedback" id="feedback">
@@ -384,7 +463,7 @@
 </div>
 
 <script>
-/* ─── SNOWFLAKES ─── */
+/* --- SNOWFLAKES --- */
 (function(){
     var c=document.getElementById('snow');
     var f=['\u2744','\u2745','\u2746','\u2022'];
@@ -402,7 +481,81 @@
     }
 })();
 
-/* ─── QUESTION DATA ─── */
+/* --- SOUND EFFECTS (Web Audio API) --- */
+var AudioCtx = window.AudioContext || window.webkitAudioContext;
+var _actx;
+function actx(){ if(!_actx) _actx = new AudioCtx(); return _actx; }
+
+function sndCorrect(){
+    var c=actx(),t=c.currentTime;
+    [523.25,659.25].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.12);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.12+0.3);
+        o.start(t+i*0.12);o.stop(t+i*0.12+0.3);
+    });
+}
+function sndWrong(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.type='triangle';o.connect(g);g.connect(c.destination);
+    o.frequency.setValueAtTime(200,t);o.frequency.linearRampToValueAtTime(140,t+0.25);
+    g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    o.start(t);o.stop(t+0.3);
+}
+function sndLevelUp(){
+    var c=actx(),t=c.currentTime;
+    [523.25,659.25,783.99].forEach(function(f,i){
+        var o=c.createOscillator(),g=c.createGain();
+        o.connect(g);g.connect(c.destination);o.frequency.value=f;
+        g.gain.setValueAtTime(0.25,t+i*0.15);
+        g.gain.exponentialRampToValueAtTime(0.001,t+i*0.15+0.45);
+        o.start(t+i*0.15);o.stop(t+i*0.15+0.45);
+    });
+}
+function sndClick(){
+    var c=actx(),t=c.currentTime,o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);o.frequency.value=880;
+    g.gain.setValueAtTime(0.08,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+    o.start(t);o.stop(t+0.06);
+}
+
+/* --- TEXT-TO-SPEECH --- */
+function speak(text){
+    if(!('speechSynthesis' in window)) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text.replace(/<[^>]*>/g,''));
+    u.rate = 0.85; u.pitch = 1.1;
+    speechSynthesis.speak(u);
+}
+function speakQuestion(){
+    sndClick();
+    var lv=levels[S.li];
+    var q=lv.qs[S.qi];
+    speak(q.q);
+}
+
+/* --- LOCALSTORAGE --- */
+var SAVE_KEY = 'math-jr-progress';
+function saveProgress(){
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+            li:S.li, qi:S.qi, score:S.score, streak:S.streak,
+            best:S.best, totalHit:S.totalHit, lvlHit:S.lvlHit
+        }));
+    } catch(e){}
+}
+function loadProgress(){
+    try {
+        var d=localStorage.getItem(SAVE_KEY);
+        return d ? JSON.parse(d) : null;
+    } catch(e){ return null; }
+}
+function clearProgress(){
+    try { localStorage.removeItem(SAVE_KEY); } catch(e){}
+}
+
+/* --- QUESTION DATA --- */
 var levels=[
     {name:"Pattern Patrol",subtitle:"Find the missing numbers!",qs:[
         {q:"What's missing?\n47, ___, 67, 77, 87, 97",opts:["57","55","60","52"],ans:0,tip:"The pattern goes up by 10 each time! 47 + 10 = 57"},
@@ -421,11 +574,11 @@ var levels=[
         {q:"What is 396 in expanded form?",opts:["300 + 90 + 6","3 + 9 + 6","390 + 6","30 + 90 + 6"],ans:0,tip:"396 = 300 + 90 + 6. Each digit shows its place value!"},
         {q:"What is 80 + 4 in standard form?",opts:["804","84","48","840"],ans:1,tip:"80 + 4 = 84!"},
         {q:"3 hundreds, 9 tens, 6 ones = ?",opts:["396","369","936","639"],ans:0,tip:"300 + 90 + 6 = 396!"},
+        {q:"1 hundred, 2 tens, 3 ones = ?",opts:["123","213","321","132"],ans:0,tip:"100 + 20 + 3 = 123!"},
     ]},
     {name:"Money Detective",subtitle:"Count the coins and bills!",qs:[
         {q:"How many dollar bills equal 400 pennies?",opts:["4","40","400","2"],ans:0,tip:"100 pennies = 1 dollar. 400 \u00f7 100 = 4 dollars!"},
         {q:"2 dollar bills + 21 dimes + 33 pennies = ?",opts:["$2.54","$4.43","$4.33","$2.33"],ans:1,tip:"$2.00 + $2.10 + $0.33 = $4.43!"},
-        {q:"1 hundred, 2 tens, 3 ones = ?",opts:["123","213","321","132"],ans:0,tip:"100 + 20 + 3 = 123!"},
     ]},
     {name:"Compare Champion",subtitle:"Which number wins?",qs:[
         {q:"Which is the SMALLEST?\n316, 780, 314, 297",opts:["316","780","314","297"],ans:3,tip:"297 is the smallest \u2014 it has fewer hundreds!"},
@@ -445,34 +598,123 @@ var levelMessages=[
     {t:"All Cases Solved!",d:"You're a true Number Detective!"},
 ];
 
-/* ─── GAME STATE ─── */
-var curLevel=0, curQ=0, points=0, streak=0, bestStreak=0;
-var totalCorrect=0, totalAnswered=0;
-var levelCorrect=0;
-var answered=false;
+/* --- GAME STATE --- */
+var S = {
+    li: 0,     // level index
+    qi: 0,     // question index
+    score: 0,  // total points
+    streak: 0, // current streak
+    best: 0,   // best streak
+    totalHit: 0,  // total correct
+    totalAns: 0,  // total answered
+    lvlHit: 0     // level correct
+};
+var answered = false;
+var advancing = false; // double-click guard for continue
 
-/* ─── SCREEN MANAGEMENT ─── */
+/* --- ANIMATED POINTS --- */
+var _displayedPts = 0;
+var _ptsAnimFrame = null;
+function animatePoints(target){
+    if(_ptsAnimFrame) cancelAnimationFrame(_ptsAnimFrame);
+    var start = _displayedPts;
+    var diff = target - start;
+    if(diff === 0) return;
+    var duration = 400;
+    var startTime = null;
+    var pill = document.getElementById('points-display');
+    pill.classList.remove('bump');
+    void pill.offsetWidth;
+    pill.classList.add('bump');
+    function step(ts){
+        if(!startTime) startTime = ts;
+        var elapsed = ts - startTime;
+        var progress = Math.min(elapsed / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        var current = Math.round(start + diff * eased);
+        _displayedPts = current;
+        pill.textContent = current + ' pts';
+        if(progress < 1){
+            _ptsAnimFrame = requestAnimationFrame(step);
+        } else {
+            _displayedPts = target;
+            pill.textContent = target + ' pts';
+            _ptsAnimFrame = null;
+        }
+    }
+    _ptsAnimFrame = requestAnimationFrame(step);
+}
+
+/* --- SCREEN MANAGEMENT --- */
 function showScreen(id){
     var screens=document.querySelectorAll('.screen');
     for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
     var el=document.getElementById(id);
     el.classList.remove('active');
-    // Force reflow for animation restart
     void el.offsetWidth;
     el.classList.add('active');
 }
 
-/* ─── GAME START ─── */
-function startGame(){
-    curLevel=0;curQ=0;points=0;streak=0;bestStreak=0;
-    totalCorrect=0;totalAnswered=0;levelCorrect=0;answered=false;
+/* --- RESUME PROMPT --- */
+function checkResume(){
+    var saved = loadProgress();
+    var area = document.getElementById('resume-area');
+    if(saved && (saved.li > 0 || saved.qi > 0)){
+        var lvName = levels[saved.li] ? levels[saved.li].name : 'Level '+(saved.li+1);
+        area.innerHTML =
+            '<div class="resume-prompt">'+
+            '<p>Continue where you left off?<br>Level: '+lvName+' &middot; '+saved.score+' pts</p>'+
+            '<div class="resume-btns">'+
+            '<button class="btn-resume" onclick="resumeGame()">Resume</button>'+
+            '<button class="btn-restart" onclick="clearAndStart()">Start Over</button>'+
+            '</div></div>';
+    } else {
+        area.innerHTML = '';
+    }
+}
+
+function resumeGame(){
+    sndClick();
+    var saved = loadProgress();
+    if(!saved) { startGame(); return; }
+    S.li = saved.li;
+    S.qi = saved.qi;
+    S.score = saved.score;
+    S.streak = saved.streak;
+    S.best = saved.best;
+    S.totalHit = saved.totalHit;
+    S.lvlHit = saved.lvlHit;
+    S.totalAns = 0;
+    _displayedPts = S.score;
+    answered = false;
+    advancing = false;
     showScreen('game-screen');
     renderTabs();
     renderQuestion();
     updateStats();
 }
 
-/* ─── TABS ─── */
+function clearAndStart(){
+    sndClick();
+    clearProgress();
+    startGame();
+}
+
+/* --- GAME START --- */
+function startGame(){
+    sndClick();
+    S.li=0;S.qi=0;S.score=0;S.streak=0;S.best=0;
+    S.totalHit=0;S.totalAns=0;S.lvlHit=0;
+    _displayedPts=0;
+    answered=false;advancing=false;
+    clearProgress();
+    showScreen('game-screen');
+    renderTabs();
+    renderQuestion();
+    updateStats();
+}
+
+/* --- TABS --- */
 function renderTabs(){
     var wrap=document.getElementById('level-tabs');
     wrap.innerHTML='';
@@ -480,25 +722,26 @@ function renderTabs(){
         var tab=document.createElement('div');
         tab.className='level-tab';
         tab.textContent=(i+1)+'. '+levels[i].name;
-        if(i===curLevel) tab.classList.add('current');
-        else if(i<curLevel) tab.classList.add('done');
+        if(i===S.li) tab.classList.add('current');
+        else if(i<S.li) tab.classList.add('done');
         else tab.classList.add('locked');
         wrap.appendChild(tab);
     }
 }
 
-/* ─── RENDER QUESTION ─── */
+/* --- RENDER QUESTION --- */
 function renderQuestion(){
-    var lv=levels[curLevel];
-    var q=lv.qs[curQ];
+    var lv=levels[S.li];
+    var q=lv.qs[S.qi];
     answered=false;
+    advancing=false;
 
     // Progress
-    document.getElementById('progress-label').textContent='Question '+(curQ+1)+' / '+lv.qs.length;
-    document.getElementById('progress-fill').style.width=((curQ/lv.qs.length)*100)+'%';
+    document.getElementById('progress-label').textContent='Question '+(S.qi+1)+' / '+lv.qs.length;
+    document.getElementById('progress-fill').style.width=((S.qi/lv.qs.length)*100)+'%';
 
     // Level tag
-    document.getElementById('q-level-tag').textContent='Level '+(curLevel+1)+': '+lv.name;
+    document.getElementById('q-level-tag').textContent='Level '+(S.li+1)+': '+lv.name;
 
     // Question text
     var qCard=document.getElementById('q-card');
@@ -509,7 +752,6 @@ function renderQuestion(){
     qCard.classList.remove('shake','pop');
 
     if(q.isCompare){
-        // Parse the two numbers from the question "450 ___ 405"
         var parts=q.q.split('___');
         var numA=parts[0].trim();
         var numB=parts[1].trim();
@@ -526,7 +768,6 @@ function renderQuestion(){
     answersWrap.innerHTML='';
 
     if(q.isCompare || q.opts.length===3){
-        // Row layout for 3 options (or compare)
         var row=document.createElement('div');
         row.className='answers-row';
         for(var i=0;i<q.opts.length;i++){
@@ -539,7 +780,6 @@ function renderQuestion(){
         }
         answersWrap.appendChild(row);
     } else {
-        // Grid layout for 4 options
         var grid=document.createElement('div');
         grid.className='answers-grid';
         for(var i=0;i<q.opts.length;i++){
@@ -558,17 +798,18 @@ function renderQuestion(){
     document.getElementById('continue-btn').classList.remove('show');
 }
 
-/* ─── HANDLE ANSWER ─── */
+/* --- HANDLE ANSWER --- */
 function handleAnswer(e){
     if(answered) return;
     answered=true;
+    sndClick();
 
     var idx=parseInt(e.target.getAttribute('data-idx'));
-    var lv=levels[curLevel];
-    var q=lv.qs[curQ];
+    var lv=levels[S.li];
+    var q=lv.qs[S.qi];
     var correct=idx===q.ans;
 
-    totalAnswered++;
+    S.totalAns++;
 
     // Disable all buttons
     var btns=document.querySelectorAll('.ans-btn');
@@ -585,13 +826,14 @@ function handleAnswer(e){
     var fbTip=document.getElementById('feedback-tip');
 
     if(correct){
-        totalCorrect++;
-        levelCorrect++;
-        streak++;
-        if(streak>bestStreak) bestStreak=streak;
+        S.totalHit++;
+        S.lvlHit++;
+        S.streak++;
+        if(S.streak>S.best) S.best=S.streak;
 
-        points+=10;
-        if(streak>=3) points+=5;
+        var prevScore = S.score;
+        S.score+=10;
+        if(S.streak>=3) S.score+=5;
 
         qCard.classList.add('pop');
         e.target.classList.add('correct');
@@ -599,45 +841,59 @@ function handleAnswer(e){
 
         var phrases=["Awesome!","Great job!","Nailed it!","You got it!","Amazing!","Super smart!"];
         fbTitle.textContent=phrases[Math.random()*phrases.length|0];
+
+        sndCorrect();
+        animatePoints(S.score);
     } else {
-        streak=0;
+        S.streak=0;
         e.target.classList.add('wrong');
         qCard.classList.add('shake');
         fb.className='feedback wrong';
         fbTitle.textContent="Not quite!";
+
+        sndWrong();
     }
 
     fbTip.textContent=q.tip;
     fb.classList.add('show');
     document.getElementById('continue-btn').classList.add('show');
     updateStats();
+    saveProgress();
+
+    // Auto-speak the feedback tip
+    setTimeout(function(){ speak(q.tip); }, 600);
 }
 
-/* ─── NEXT QUESTION ─── */
+/* --- NEXT QUESTION --- */
 function nextQuestion(){
-    curQ++;
-    var lv=levels[curLevel];
-    if(curQ>=lv.qs.length){
-        // Level complete
+    if(advancing) return;
+    advancing=true;
+    sndClick();
+
+    S.qi++;
+    var lv=levels[S.li];
+    if(S.qi>=lv.qs.length){
         showLevelComplete();
     } else {
         renderQuestion();
     }
+    saveProgress();
 }
 
-/* ─── LEVEL COMPLETE ─── */
+/* --- LEVEL COMPLETE --- */
 function showLevelComplete(){
-    var msg=levelMessages[curLevel];
+    sndLevelUp();
+    var msg=levelMessages[S.li];
     document.getElementById('lc-title').textContent=msg.t;
     document.getElementById('lc-desc').textContent=msg.d;
 
-    var lv=levels[curLevel];
+    var lv=levels[S.li];
     document.getElementById('lc-stats').innerHTML=
-        '<div class="stat-box"><span class="stat-val">'+levelCorrect+'/'+lv.qs.length+'</span><span class="stat-label">Correct</span></div>'+
-        '<div class="stat-box"><span class="stat-val">'+points+'</span><span class="stat-label">Points</span></div>'+
-        '<div class="stat-box"><span class="stat-val">'+bestStreak+'</span><span class="stat-label">Best Streak</span></div>';
+        '<div class="stat-box"><span class="stat-val">'+S.lvlHit+'/'+lv.qs.length+'</span><span class="stat-label">Correct</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+S.score+'</span><span class="stat-label">Points</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+S.best+'</span><span class="stat-label">Best Streak</span></div>';
 
-    var isLast=curLevel>=levels.length-1;
+    var isLast=S.li>=levels.length-1;
     document.getElementById('lc-btn').textContent=isLast?'See Results':'Next Level';
     document.getElementById('lc-btn').onclick=isLast?showGameComplete:nextLevel;
 
@@ -645,46 +901,58 @@ function showLevelComplete(){
     fireConfetti();
 }
 
-/* ─── NEXT LEVEL ─── */
+/* --- NEXT LEVEL --- */
 function nextLevel(){
-    curLevel++;
-    curQ=0;
-    levelCorrect=0;
-    if(curLevel>=levels.length){
+    sndClick();
+    S.li++;
+    S.qi=0;
+    S.lvlHit=0;
+    advancing=false;
+    if(S.li>=levels.length){
         showGameComplete();
         return;
     }
     showScreen('game-screen');
     renderTabs();
     renderQuestion();
+    saveProgress();
 }
 
-/* ─── GAME COMPLETE ─── */
+/* --- GAME COMPLETE --- */
 function showGameComplete(){
+    sndLevelUp();
     var totalQ=0;
     for(var i=0;i<levels.length;i++) totalQ+=levels[i].qs.length;
     document.getElementById('gc-stats').innerHTML=
-        '<div class="stat-box"><span class="stat-val">'+totalCorrect+'/'+totalQ+'</span><span class="stat-label">Correct</span></div>'+
-        '<div class="stat-box"><span class="stat-val">'+points+'</span><span class="stat-label">Points</span></div>'+
-        '<div class="stat-box"><span class="stat-val">'+bestStreak+'</span><span class="stat-label">Best Streak</span></div>';
+        '<div class="stat-box"><span class="stat-val">'+S.totalHit+'/'+totalQ+'</span><span class="stat-label">Correct</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+S.score+'</span><span class="stat-label">Points</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+S.best+'</span><span class="stat-label">Best Streak</span></div>';
     showScreen('game-complete-screen');
     fireConfetti();
+    clearProgress();
 }
 
-/* ─── RESET ─── */
+/* --- RESET --- */
 function resetGame(){
-    curLevel=0;curQ=0;points=0;streak=0;bestStreak=0;
-    totalCorrect=0;totalAnswered=0;levelCorrect=0;answered=false;
+    sndClick();
+    S.li=0;S.qi=0;S.score=0;S.streak=0;S.best=0;
+    S.totalHit=0;S.totalAns=0;S.lvlHit=0;
+    _displayedPts=0;
+    answered=false;advancing=false;
+    clearProgress();
     showScreen('intro-screen');
+    checkResume();
 }
 
-/* ─── UPDATE STATS ─── */
+/* --- UPDATE STATS --- */
 function updateStats(){
-    document.getElementById('streak-display').innerHTML='&#x1F525; '+streak;
-    document.getElementById('points-display').textContent=points+' pts';
+    document.getElementById('streak-display').innerHTML='&#x1F525; '+S.streak;
+    // Points display is updated via animatePoints during scoring;
+    // set it directly here for non-scoring updates (resume, start)
+    document.getElementById('points-display').textContent=S.score+' pts';
 }
 
-/* ─── CONFETTI ─── */
+/* --- CONFETTI --- */
 function fireConfetti(){
     var wrap=document.createElement('div');
     wrap.className='confetti-wrap';
@@ -705,6 +973,9 @@ function fireConfetti(){
     }
     setTimeout(function(){wrap.remove()},4000);
 }
+
+/* --- INIT: check for saved progress --- */
+checkResume();
 </script>
 </body>
 </html>
