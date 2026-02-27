@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFF8F0">
+    <title>Number Ops Challenge</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%9A%80</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#FFF8F0;--card:#FFFFFF;--border:#2D2D2D;
+            --text:#2D2D2D;--text-mid:#555;--text-light:#888;
+            --ok:#22C55E;--ok-bg:#DCFCE7;
+            --no:#EF4444;--no-bg:#FEE2E2;
+            --accent:#FF9500;--accent-bg:#FFF0DD;
+        }
+        html{font-size:16px}
+        body{
+            font-family:'DM Sans',system-ui,sans-serif;
+            background:var(--bg);color:var(--text);
+            min-height:100dvh;display:flex;flex-direction:column;
+            align-items:center;padding:0 16px 60px;
+            overflow-x:hidden;-webkit-font-smoothing:antialiased;
+            position:relative;
+        }
+        .wrap{width:100%;max-width:460px;position:relative;z-index:1}
+
+        /* ---- SNOWFLAKES ---- */
+        .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
+        .flake{
+            position:absolute;top:-20px;color:#B8D4E8;opacity:.6;
+            animation:fall linear infinite;
+            font-size:var(--size,16px);
+        }
+        @keyframes fall{
+            0%{transform:translateY(-20px) rotate(0deg)}
+            100%{transform:translateY(calc(100vh + 40px)) rotate(var(--spin,360deg))}
+        }
+
+        /* ---- CONFETTI ---- */
+        .confetti-wrap{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;overflow:hidden}
+        .confetti-piece{
+            position:absolute;top:-20px;width:10px;height:10px;
+            animation:confettiFall var(--dur,3s) var(--delay,0s) ease-in forwards;
+            opacity:0;
+        }
+        @keyframes confettiFall{
+            0%{transform:translateY(0) rotate(0deg) scale(1);opacity:1}
+            80%{opacity:1}
+            100%{transform:translateY(100vh) rotate(var(--rot,720deg)) scale(.3);opacity:0}
+        }
+
+        /* ---- ANIMATIONS ---- */
+        @keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+        @keyframes firePop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+        @keyframes slideOpen{from{max-height:0;opacity:0;margin-top:0}to{max-height:120px;opacity:1;margin-top:12px}}
+        @keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.1)}100%{transform:scale(1)}}
+        .anim-pop{animation:pop .35s ease}
+        .anim-shake{animation:shake .4s ease}
+        .anim-fire{animation:firePop .4s ease}
+        .anim-fadeUp{animation:fadeUp .45s ease both}
+
+        /* ---- INTRO SCREEN ---- */
+        .screen{display:none}
+        .screen.active{display:block}
+
+        .intro{text-align:center;padding-top:80px}
+        .intro-icon{font-size:4rem;display:block;margin-bottom:12px;animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1)}
+        .intro h1{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:2rem;letter-spacing:-1px;margin-bottom:8px;
+        }
+        .intro p{color:var(--text-mid);font-size:1.1rem;line-height:1.5;margin-bottom:32px}
+        .btn-go{
+            display:inline-block;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.2rem;
+            background:var(--accent);color:#fff;
+            border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
+            padding:14px 48px;cursor:pointer;
+            transition:transform .1s,border-bottom-width .1s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn-go:hover{transform:translateY(-2px)}
+        .btn-go:active{transform:translateY(4px);border-bottom-width:3px}
+
+        /* ---- GAME HEADER ---- */
+        .game-header{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:16px 0 12px;
+        }
+        .back-link{
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.95rem;
+            color:var(--text);text-decoration:none;
+            display:flex;align-items:center;gap:4px;
+        }
+        .back-link:hover{opacity:.7}
+        .game-logo{font-size:1.3rem}
+        .stats-pill{
+            display:flex;align-items:center;gap:10px;
+            background:var(--card);border:2px solid var(--border);border-radius:20px;
+            padding:5px 14px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:.9rem;
+        }
+        .streak-num{color:var(--accent)}
+        .pts-num{color:var(--ok)}
+
+        /* ---- LEVEL TABS ---- */
+        .level-tabs{
+            display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;
+            -webkit-overflow-scrolling:touch;scrollbar-width:none;
+            padding-bottom:4px;
+        }
+        .level-tabs::-webkit-scrollbar{display:none}
+        .lvl-tab{
+            flex-shrink:0;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.75rem;
+            padding:6px 14px;border-radius:12px;
+            border:2px solid var(--border);background:var(--card);
+            cursor:pointer;transition:all .15s;white-space:nowrap;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .lvl-tab.current{
+            background:var(--accent-bg);border-color:var(--accent);
+            font-weight:700;box-shadow:2px 2px 0 var(--border);
+        }
+        .lvl-tab.done{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+        .lvl-tab.locked{opacity:.4;cursor:default}
+
+        /* ---- PROGRESS BAR ---- */
+        .progress-wrap{
+            background:#E5E7EB;border-radius:10px;height:10px;
+            margin-bottom:18px;overflow:hidden;
+            border:2px solid var(--border);
+        }
+        .progress-fill{
+            height:100%;background:var(--ok);border-radius:8px;
+            transition:width .4s ease;width:0;
+        }
+
+        /* ---- QUESTION CARD ---- */
+        .q-card{
+            background:var(--card);border:3px solid var(--border);
+            border-radius:20px;padding:24px 20px;
+            box-shadow:4px 4px 0 var(--border);
+            margin-bottom:16px;
+        }
+        .q-label{
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;
+            color:var(--accent);text-transform:uppercase;letter-spacing:.5px;
+            margin-bottom:8px;
+        }
+        .q-text{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.35rem;line-height:1.4;letter-spacing:-.3px;
+        }
+
+        /* ---- ANSWER BUTTONS ---- */
+        .opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+        .opts-row{display:flex;gap:8px;margin-bottom:4px}
+        .opts-row .opt-btn{flex:1}
+        .opt-btn{
+            font-family:'DM Sans',sans-serif;font-weight:700;font-size:1.05rem;
+            background:var(--card);color:var(--text);
+            border:3px solid var(--border);border-bottom-width:5px;border-radius:14px;
+            padding:14px 10px;cursor:pointer;
+            transition:transform .1s,border-bottom-width .1s,background .15s,border-color .15s;
+            -webkit-tap-highlight-color:transparent;
+            text-align:center;line-height:1.3;
+        }
+        .opt-btn:hover:not(.locked){transform:translateY(-2px)}
+        .opt-btn:active:not(.locked){transform:translateY(2px);border-bottom-width:3px}
+        .opt-btn.correct{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+        .opt-btn.wrong{background:var(--no-bg);border-color:var(--no);color:var(--no)}
+        .opt-btn.dim{opacity:.45;cursor:default}
+        .opt-btn.locked{cursor:default}
+
+        /* ---- FEEDBACK ---- */
+        .feedback{
+            overflow:hidden;max-height:0;opacity:0;
+            transition:max-height .35s ease,opacity .35s ease,margin-top .35s ease;
+            margin-top:0;
+        }
+        .feedback.show{
+            max-height:140px;opacity:1;margin-top:12px;
+        }
+        .feedback-inner{
+            border-radius:14px;padding:14px 16px;
+            font-size:.95rem;line-height:1.5;
+        }
+        .feedback-inner.ok{background:var(--ok-bg);border:2px solid var(--ok);color:#166534}
+        .feedback-inner.no{background:var(--no-bg);border:2px solid var(--no);color:#991B1B}
+        .feedback-emoji{font-size:1.2rem;margin-right:6px}
+
+        /* ---- CONTINUE BUTTON ---- */
+        .btn-continue{
+            display:none;width:100%;margin-top:14px;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.1rem;
+            background:var(--ok);color:#fff;
+            border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
+            padding:14px;cursor:pointer;
+            transition:transform .1s,border-bottom-width .1s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn-continue.show{display:block;animation:fadeUp .3s ease}
+        .btn-continue:hover{transform:translateY(-2px)}
+        .btn-continue:active{transform:translateY(4px);border-bottom-width:3px}
+
+        /* ---- LEVEL COMPLETE ---- */
+        .level-done{text-align:center;padding:40px 0}
+        .level-done-icon{font-size:3.5rem;display:block;margin-bottom:10px;animation:bounceIn .5s cubic-bezier(.34,1.56,.64,1)}
+        .level-done h2{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.6rem;letter-spacing:-.5px;margin-bottom:6px;
+        }
+        .level-done p{color:var(--text-mid);font-size:1rem;margin-bottom:24px;line-height:1.5}
+        .stats-grid{
+            display:grid;grid-template-columns:1fr 1fr;gap:10px;
+            margin-bottom:24px;
+        }
+        .stat-box{
+            background:var(--card);border:2px solid var(--border);border-radius:14px;
+            padding:14px;text-align:center;
+        }
+        .stat-box .val{
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.6rem;
+            color:var(--accent);display:block;
+        }
+        .stat-box .lbl{font-size:.8rem;color:var(--text-mid)}
+        .btn-next{
+            display:inline-block;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.1rem;
+            background:var(--accent);color:#fff;
+            border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
+            padding:14px 40px;cursor:pointer;
+            transition:transform .1s,border-bottom-width .1s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn-next:hover{transform:translateY(-2px)}
+        .btn-next:active{transform:translateY(4px);border-bottom-width:3px}
+
+        /* ---- GAME COMPLETE ---- */
+        .game-done{text-align:center;padding:40px 0}
+        .game-done-icon{font-size:4rem;display:block;margin-bottom:10px;animation:bounceIn .6s cubic-bezier(.34,1.56,.64,1)}
+        .game-done h2{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.8rem;letter-spacing:-.5px;margin-bottom:6px;
+        }
+        .game-done p{color:var(--text-mid);font-size:1.05rem;margin-bottom:28px;line-height:1.5}
+        .final-score{
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:2.8rem;
+            color:var(--accent);display:block;margin-bottom:4px;
+        }
+        .final-label{font-size:.9rem;color:var(--text-mid);margin-bottom:24px}
+        .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+        .btn-outline{
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;
+            background:var(--card);color:var(--text);
+            border:3px solid var(--border);border-bottom-width:5px;border-radius:16px;
+            padding:12px 28px;cursor:pointer;
+            transition:transform .1s,border-bottom-width .1s;
+            text-decoration:none;display:inline-block;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn-outline:hover{transform:translateY(-2px)}
+        .btn-outline:active{transform:translateY(2px);border-bottom-width:3px}
+
+        /* ---- RESPONSIVE ---- */
+        @media(max-width:380px){
+            .intro h1{font-size:1.7rem}
+            .q-text{font-size:1.15rem}
+            .opt-btn{padding:12px 8px;font-size:.95rem}
+            .level-done h2{font-size:1.4rem}
+            .game-done h2{font-size:1.5rem}
+        }
+    </style>
+</head>
+<body>
+
+<div class="snow" id="snow"></div>
+
+<div class="wrap">
+
+    <!-- ============ INTRO ============ -->
+    <div class="screen active" id="intro-screen">
+        <div class="intro">
+            <span class="intro-icon">&#x1F680;</span>
+            <h1>Number Ops Challenge &#x1F680;</h1>
+            <p>Add, subtract, and solve puzzles!</p>
+            <button class="btn-go" id="btn-start">Let's Go!</button>
+        </div>
+    </div>
+
+    <!-- ============ GAME ============ -->
+    <div class="screen" id="game-screen">
+        <div class="game-header">
+            <a href="index.html" class="back-link">&#x2190; Back</a>
+            <span class="game-logo">&#x1F680;</span>
+            <div class="stats-pill">
+                <span>&#x1F525; <span class="streak-num" id="streak-display">0</span></span>
+                <span>&#x2B50; <span class="pts-num" id="pts-display">0</span></span>
+            </div>
+        </div>
+
+        <div class="level-tabs" id="level-tabs"></div>
+
+        <div class="progress-wrap">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+
+        <div id="question-area"></div>
+
+        <div class="feedback" id="feedback">
+            <div class="feedback-inner" id="feedback-inner"></div>
+        </div>
+
+        <button class="btn-continue" id="btn-continue">Continue &#x27A1;&#xFE0F;</button>
+    </div>
+
+    <!-- ============ LEVEL COMPLETE ============ -->
+    <div class="screen" id="level-done-screen">
+        <div class="level-done">
+            <span class="level-done-icon">&#x1F389;</span>
+            <h2 id="ld-title">Great Job!</h2>
+            <p id="ld-desc"></p>
+            <div class="stats-grid">
+                <div class="stat-box"><span class="val" id="ld-correct">0/0</span><span class="lbl">Correct</span></div>
+                <div class="stat-box"><span class="val" id="ld-streak">0</span><span class="lbl">Best Streak</span></div>
+                <div class="stat-box"><span class="val" id="ld-points">0</span><span class="lbl">Points Earned</span></div>
+                <div class="stat-box"><span class="val" id="ld-total">0</span><span class="lbl">Total Points</span></div>
+            </div>
+            <button class="btn-next" id="btn-next-level">Next Level &#x27A1;&#xFE0F;</button>
+        </div>
+    </div>
+
+    <!-- ============ GAME COMPLETE ============ -->
+    <div class="screen" id="game-done-screen">
+        <div class="game-done">
+            <span class="game-done-icon">&#x1F3C6;</span>
+            <h2>All Ops Complete!</h2>
+            <p>You crushed every challenge!<br>Amazing work today!</p>
+            <span class="final-score" id="final-score">0</span>
+            <div class="final-label">Total Points</div>
+            <div class="stats-grid" style="margin-bottom:28px">
+                <div class="stat-box"><span class="val" id="gd-correct">0/0</span><span class="lbl">Total Correct</span></div>
+                <div class="stat-box"><span class="val" id="gd-streak">0</span><span class="lbl">Best Streak</span></div>
+            </div>
+            <div class="btn-row">
+                <button class="btn-next" id="btn-play-again">Play Again &#x1F504;</button>
+                <a href="index.html" class="btn-outline">Back to Missions</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="confetti-wrap" id="confetti-wrap"></div>
+
+<script>
+/* ---- QUESTION DATA ---- */
+var LEVELS = [
+    {name:"Number Sense",subtitle:"Before, after, and in order!",qs:[
+        {q:"What number comes right BEFORE 1,300?",opts:["1,299","1,301","1,200","1,290"],ans:0,tip:"Count back 1 from 1,300. That's 1,299!"},
+        {q:"What number comes right AFTER 499?",opts:["500","498","400","509"],ans:0,tip:"499 + 1 = 500!"},
+        {q:"What comes right BEFORE 2,010?",opts:["2,009","2,011","2,000","2,100"],ans:0,tip:"2,010 \u2212 1 = 2,009!"},
+        {q:"Greatest to least:\n812, 821, 802, 828",opts:["828, 821, 812, 802","802, 812, 821, 828","828, 812, 821, 802"],ans:0,tip:"828 > 821 > 812 > 802. Compare the tens!"},
+        {q:"Least to greatest:\n3,090 \u2014 3,009 \u2014 3,900 \u2014 3,099",opts:["3,009 \u2192 3,090 \u2192 3,099 \u2192 3,900","3,900 \u2192 3,099 \u2192 3,090 \u2192 3,009","3,009 \u2192 3,099 \u2192 3,090 \u2192 3,900"],ans:0,tip:"3,009 < 3,090 < 3,099 < 3,900!"}
+    ]},
+    {name:"Number Line Jumps",subtitle:"Jump forward and back!",qs:[
+        {q:"Start at 68. Jump forward 30.\nWhere are you?",opts:["98","88","108","78"],ans:0,tip:"68 + 30 = 98!"},
+        {q:"Start at 120. Jump back 47.\nWhere are you?",opts:["73","83","63","77"],ans:0,tip:"120 \u2212 47 = 73!"},
+        {q:"Start at 295. Jump forward 100, then back 18.",opts:["377","395","277","367"],ans:0,tip:"295 + 100 = 395. Then 395 \u2212 18 = 377!"}
+    ]},
+    {name:"Add It Up",subtitle:"Show your addition skills!",qs:[
+        {q:"47 + 34 = ?",opts:["81","71","91","83"],ans:0,tip:"40+30=70, 7+4=11, 70+11=81!"},
+        {q:"516 + 298 = ?",opts:["814","714","804","824"],ans:0,tip:"516 + 298 = 814. Tip: 298 is close to 300!"},
+        {q:"46 + 29 = ?",opts:["75","65","85","74"],ans:0,tip:"46 + 30 = 76, minus 1 = 75!"},
+        {q:"38 + 47 = ?",opts:["85","75","95","84"],ans:0,tip:"30+40=70, 8+7=15, 70+15=85!"},
+        {q:"3 + 5 + 6 = ?",opts:["14","13","15","12"],ans:0,tip:"3+5=8, then 8+6=14!"},
+        {q:"125 + 40 + 9 = ?",opts:["174","164","184","175"],ans:0,tip:"125+40=165, then 165+9=174!"}
+    ]},
+    {name:"Subtract It",subtitle:"Take away and solve!",qs:[
+        {q:"58 \u2212 6 = ?",opts:["52","54","48","56"],ans:0,tip:"58 \u2212 6 = 52!"},
+        {q:"39 \u2212 33 = ?",opts:["6","8","4","12"],ans:0,tip:"39 \u2212 33 = 6!"},
+        {q:"15 \u2212 2 \u2212 5 = ?",opts:["8","10","7","12"],ans:0,tip:"15\u22122=13, then 13\u22125=8!"},
+        {q:"942 \u2212 373 = ?",opts:["569","579","469","679"],ans:0,tip:"Start from ones: 12\u22123=9, 13\u22127=6, 8\u22123=5. Answer: 569!"},
+        {q:"633 \u2212 328 = ?",opts:["305","315","295","405"],ans:0,tip:"633 \u2212 328 = 305!"}
+    ]},
+    {name:"Story Solver",subtitle:"Read and solve!",qs:[
+        {q:"Lin made 14 sandwiches. 8 were chicken.\nHow many were grilled cheese?",opts:["14 \u2212 8 = 6","8 \u2212 6 = 2","14 \u2212 10 = 4"],ans:0,tip:"14 total minus 8 chicken = 6 grilled cheese!"},
+        {q:"A truck had 17 tires. It delivered 7.\nHow many tires are left?",opts:["17 \u2212 7 = 10","17 \u2212 5 = 12","15 \u2212 8 = 7"],ans:0,tip:"17 \u2212 7 = 10 tires left!"},
+        {q:"A preserve is 418 acres. A farm is 194 acres.\nWhat is the total area?",opts:["612","622","512","602"],ans:0,tip:"418 + 194 = 612 acres total!"},
+        {q:"You paid $20 and got $7 back.\nHow much was the meal?",opts:["$13","$27","$7","$17"],ans:0,tip:"$20 \u2212 $7 = $13!"}
+    ]}
+];
+
+var LEVEL_MSGS = [
+    {t:"Number Sense Sharp!",d:"You know your way around numbers!"},
+    {t:"Jump Master!",d:"Forward and back \u2014 no problem!"},
+    {t:"Addition Ace!",d:"You added like a pro!"},
+    {t:"Subtraction Star!",d:"Nothing gets past your math skills!"},
+    {t:"All Ops Complete!",d:"You crushed every challenge!"}
+];
+
+/* ---- STATE ---- */
+var curLevel = 0;
+var curQ = 0;
+var points = 0;
+var streak = 0;
+var bestStreak = 0;
+var totalCorrect = 0;
+var totalQuestions = 0;
+var levelCorrect = 0;
+var levelPoints = 0;
+var levelBestStreak = 0;
+var answered = false;
+var levelsCompleted = [];
+
+/* ---- DOM ---- */
+var introScreen = document.getElementById('intro-screen');
+var gameScreen = document.getElementById('game-screen');
+var levelDoneScreen = document.getElementById('level-done-screen');
+var gameDoneScreen = document.getElementById('game-done-screen');
+var levelTabs = document.getElementById('level-tabs');
+var progressFill = document.getElementById('progress-fill');
+var questionArea = document.getElementById('question-area');
+var feedback = document.getElementById('feedback');
+var feedbackInner = document.getElementById('feedback-inner');
+var btnContinue = document.getElementById('btn-continue');
+var streakDisplay = document.getElementById('streak-display');
+var ptsDisplay = document.getElementById('pts-display');
+
+function showScreen(id) {
+    var screens = document.querySelectorAll('.screen');
+    for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+}
+
+/* ---- LEVEL TABS ---- */
+function renderTabs() {
+    levelTabs.innerHTML = '';
+    for (var i = 0; i < LEVELS.length; i++) {
+        var tab = document.createElement('button');
+        tab.className = 'lvl-tab';
+        tab.textContent = (i + 1) + '. ' + LEVELS[i].name;
+        if (i === curLevel) tab.classList.add('current');
+        else if (levelsCompleted.indexOf(i) !== -1) tab.classList.add('done');
+        else if (i > curLevel) tab.classList.add('locked');
+        levelTabs.appendChild(tab);
+    }
+    /* scroll current tab into view */
+    var current = levelTabs.querySelector('.current');
+    if (current) current.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+
+/* ---- PROGRESS ---- */
+function updateProgress() {
+    var level = LEVELS[curLevel];
+    var pct = level ? ((curQ / level.qs.length) * 100) : 100;
+    progressFill.style.width = pct + '%';
+}
+
+/* ---- STATS ---- */
+function updateStats() {
+    streakDisplay.textContent = streak;
+    ptsDisplay.textContent = points;
+    if (streak >= 3) {
+        streakDisplay.parentElement.classList.add('anim-fire');
+        setTimeout(function(){ streakDisplay.parentElement.classList.remove('anim-fire'); }, 400);
+    }
+}
+
+/* ---- RENDER QUESTION ---- */
+function renderQuestion() {
+    answered = false;
+    feedback.classList.remove('show');
+    btnContinue.classList.remove('show');
+
+    var level = LEVELS[curLevel];
+    var q = level.qs[curQ];
+    var isOrdering = q.opts.length === 3;
+
+    var html = '<div class="q-card anim-fadeUp">';
+    html += '<div class="q-label">' + level.name + ' \u2022 Question ' + (curQ + 1) + ' of ' + level.qs.length + '</div>';
+    html += '<div class="q-text">' + q.q.replace(/\n/g, '<br>') + '</div>';
+    html += '</div>';
+
+    if (isOrdering) {
+        html += '<div class="opts-row">';
+    } else {
+        html += '<div class="opts-grid">';
+    }
+    for (var i = 0; i < q.opts.length; i++) {
+        html += '<button class="opt-btn" data-idx="' + i + '" onclick="pickAnswer(' + i + ')">' + q.opts[i] + '</button>';
+    }
+    html += '</div>';
+
+    questionArea.innerHTML = html;
+    updateProgress();
+}
+
+/* ---- PICK ANSWER ---- */
+function pickAnswer(idx) {
+    if (answered) return;
+    answered = true;
+
+    var level = LEVELS[curLevel];
+    var q = level.qs[curQ];
+    var correct = idx === q.ans;
+    var btns = questionArea.querySelectorAll('.opt-btn');
+
+    totalQuestions++;
+
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].classList.add('locked');
+        if (i === q.ans) {
+            btns[i].classList.add('correct');
+        } else if (i === idx && !correct) {
+            btns[i].classList.add('wrong');
+        } else {
+            btns[i].classList.add('dim');
+        }
+    }
+
+    if (correct) {
+        streak++;
+        totalCorrect++;
+        levelCorrect++;
+        var earned = 10;
+        if (streak >= 3) earned += 5;
+        points += earned;
+        levelPoints += earned;
+        if (streak > bestStreak) bestStreak = streak;
+        if (streak > levelBestStreak) levelBestStreak = streak;
+
+        btns[idx].classList.add('anim-pop');
+        feedbackInner.className = 'feedback-inner ok';
+        var msg = '<span class="feedback-emoji">&#x2705;</span> ';
+        if (streak >= 3) msg += '<strong>&#x1F525; ' + streak + ' streak!</strong> +' + earned + ' pts! ';
+        else msg += '<strong>Nice!</strong> +' + earned + ' pts! ';
+        msg += q.tip;
+        feedbackInner.innerHTML = msg;
+    } else {
+        streak = 0;
+        btns[idx].classList.add('anim-shake');
+        feedbackInner.className = 'feedback-inner no';
+        feedbackInner.innerHTML = '<span class="feedback-emoji">&#x1F914;</span> <strong>Not quite!</strong> ' + q.tip;
+    }
+
+    feedback.classList.add('show');
+    btnContinue.classList.add('show');
+    updateStats();
+}
+
+/* ---- CONTINUE ---- */
+btnContinue.addEventListener('click', function() {
+    curQ++;
+    var level = LEVELS[curLevel];
+    if (curQ >= level.qs.length) {
+        showLevelComplete();
+    } else {
+        renderQuestion();
+    }
+});
+
+/* ---- LEVEL COMPLETE ---- */
+function showLevelComplete() {
+    levelsCompleted.push(curLevel);
+    showScreen('level-done-screen');
+    spawnConfetti();
+
+    var msg = LEVEL_MSGS[curLevel];
+    document.getElementById('ld-title').textContent = msg.t;
+    document.getElementById('ld-desc').textContent = msg.d;
+    document.getElementById('ld-correct').textContent = levelCorrect + '/' + LEVELS[curLevel].qs.length;
+    document.getElementById('ld-streak').textContent = levelBestStreak;
+    document.getElementById('ld-points').textContent = levelPoints;
+    document.getElementById('ld-total').textContent = points;
+
+    var btnNext = document.getElementById('btn-next-level');
+    if (curLevel >= LEVELS.length - 1) {
+        btnNext.innerHTML = 'See Results &#x1F3C6;';
+    } else {
+        btnNext.innerHTML = 'Next Level &#x27A1;&#xFE0F;';
+    }
+}
+
+/* ---- NEXT LEVEL ---- */
+document.getElementById('btn-next-level').addEventListener('click', function() {
+    curLevel++;
+    if (curLevel >= LEVELS.length) {
+        showGameComplete();
+    } else {
+        startLevel();
+    }
+});
+
+/* ---- START LEVEL ---- */
+function startLevel() {
+    curQ = 0;
+    levelCorrect = 0;
+    levelPoints = 0;
+    levelBestStreak = 0;
+    showScreen('game-screen');
+    renderTabs();
+    renderQuestion();
+    updateStats();
+}
+
+/* ---- GAME COMPLETE ---- */
+function showGameComplete() {
+    showScreen('game-done-screen');
+    spawnConfetti();
+    document.getElementById('final-score').textContent = points;
+    document.getElementById('gd-correct').textContent = totalCorrect + '/' + totalQuestions;
+    document.getElementById('gd-streak').textContent = bestStreak;
+}
+
+/* ---- PLAY AGAIN ---- */
+document.getElementById('btn-play-again').addEventListener('click', function() {
+    curLevel = 0;
+    curQ = 0;
+    points = 0;
+    streak = 0;
+    bestStreak = 0;
+    totalCorrect = 0;
+    totalQuestions = 0;
+    levelCorrect = 0;
+    levelPoints = 0;
+    levelBestStreak = 0;
+    levelsCompleted = [];
+    startLevel();
+});
+
+/* ---- START GAME ---- */
+document.getElementById('btn-start').addEventListener('click', function() {
+    startLevel();
+});
+
+/* ---- CONFETTI ---- */
+function spawnConfetti() {
+    var wrap = document.getElementById('confetti-wrap');
+    wrap.innerHTML = '';
+    var colors = ['#FF9500','#22C55E','#3B82F6','#EF4444','#A855F7','#F59E0B','#EC4899'];
+    for (var i = 0; i < 55; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        var color = colors[Math.random() * colors.length | 0];
+        var left = Math.random() * 100;
+        var w = 6 + Math.random() * 10;
+        var h = 6 + Math.random() * 10;
+        var dur = 2 + Math.random() * 2;
+        var delay = Math.random() * .8;
+        var rot = 360 + Math.random() * 720;
+        var shape = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.cssText =
+            'left:' + left + '%;' +
+            'width:' + w + 'px;' +
+            'height:' + h + 'px;' +
+            'background:' + color + ';' +
+            'border-radius:' + shape + ';' +
+            '--dur:' + dur + 's;' +
+            '--delay:' + delay + 's;' +
+            '--rot:' + rot + 'deg;';
+        wrap.appendChild(piece);
+    }
+    setTimeout(function() { wrap.innerHTML = ''; }, 5000);
+}
+
+/* ---- SNOWFLAKES ---- */
+(function(){
+    var container = document.getElementById('snow');
+    var flakes = ['\u2744','\u2745','\u2746','\u2022'];
+    for (var i = 0; i < 30; i++) {
+        var el = document.createElement('div');
+        el.className = 'flake';
+        el.textContent = flakes[Math.random() * flakes.length | 0];
+        var size = 10 + Math.random() * 18;
+        var dur = 6 + Math.random() * 10;
+        var delay = Math.random() * 8;
+        var left = Math.random() * 100;
+        var spin = 180 + Math.random() * 540;
+        el.style.cssText =
+            'left:' + left + '%;' +
+            '--size:' + size + 'px;' +
+            'font-size:' + size + 'px;' +
+            'animation-duration:' + dur + 's;' +
+            'animation-delay:' + delay + 's;' +
+            '--spin:' + spin + 'deg;' +
+            'opacity:' + (.2 + Math.random() * .4) + ';';
+        container.appendChild(el);
+    }
+})();
+</script>
+</body>
+</html>

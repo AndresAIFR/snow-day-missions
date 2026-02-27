@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFF8F0">
+    <title>Number Detectives - Snow Day Missions</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%F0%9F%94%8D</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#FFF8F0;--card:#FFFFFF;--border:#2D2D2D;
+            --text:#2D2D2D;--text-mid:#555;--text-light:#888;
+            --ok:#22C55E;--ok-bg:#DCFCE7;
+            --no:#EF4444;--no-bg:#FEE2E2;
+            --accent:#22C55E;--accent-bg:#DCFCE7;
+        }
+        html{font-size:16px}
+        body{
+            font-family:'DM Sans',system-ui,sans-serif;
+            background:var(--bg);color:var(--text);
+            min-height:100dvh;display:flex;flex-direction:column;
+            align-items:center;padding:0 16px 60px;
+            overflow-x:hidden;-webkit-font-smoothing:antialiased;
+            position:relative;
+        }
+        .wrap{width:100%;max-width:460px;position:relative;z-index:1}
+
+        /* ─── SNOWFLAKES ─── */
+        .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
+        .flake{
+            position:absolute;top:-20px;color:#B8D4E8;opacity:.6;
+            animation:fall linear infinite;
+            font-size:var(--size,16px);
+        }
+        @keyframes fall{
+            0%{transform:translateY(-20px) rotate(0deg)}
+            100%{transform:translateY(calc(100vh + 40px)) rotate(var(--spin,360deg))}
+        }
+
+        /* ─── SCREENS ─── */
+        .screen{display:none;animation:fadeUp .4s ease both}
+        .screen.active{display:block}
+        @keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+        /* ─── INTRO SCREEN ─── */
+        .intro{text-align:center;padding-top:80px}
+        .intro-icon{font-size:4rem;display:block;margin-bottom:12px;animation:bounce .7s cubic-bezier(.34,1.56,.64,1)}
+        .intro h1{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:2.2rem;letter-spacing:-1px;margin-bottom:8px;
+        }
+        .intro p{color:var(--text-mid);font-size:1.1rem;line-height:1.6;margin-bottom:32px}
+        @keyframes bounce{0%{transform:scale(0)}65%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+        /* ─── GAME HEADER ─── */
+        .game-header{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:16px 0 12px;gap:8px;
+        }
+        .back-link{
+            font-family:'Fredoka',sans-serif;font-weight:600;
+            font-size:.9rem;color:var(--text-mid);text-decoration:none;
+            display:flex;align-items:center;gap:4px;flex-shrink:0;
+        }
+        .back-link:hover{color:var(--text)}
+        .game-logo{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1rem;letter-spacing:-.3px;white-space:nowrap;
+        }
+        .stats{display:flex;align-items:center;gap:8px;flex-shrink:0}
+        .streak{font-family:'Fredoka',sans-serif;font-weight:600;font-size:.95rem}
+        .points-pill{
+            background:var(--border);color:#fff;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.8rem;
+            padding:4px 12px;border-radius:20px;white-space:nowrap;
+        }
+
+        /* ─── LEVEL TABS ─── */
+        .level-tabs{
+            display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;
+            -webkit-overflow-scrolling:touch;scrollbar-width:none;
+            padding-bottom:4px;
+        }
+        .level-tabs::-webkit-scrollbar{display:none}
+        .level-tab{
+            flex:1;min-width:0;padding:8px 4px;text-align:center;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:.72rem;
+            border:2px solid var(--border);border-radius:12px;
+            background:var(--card);cursor:pointer;white-space:nowrap;
+            transition:all .15s;
+        }
+        .level-tab.current{
+            font-weight:700;box-shadow:2px 2px 0 var(--border);
+            background:#fff;
+        }
+        .level-tab.done{
+            background:var(--ok-bg);border-color:var(--ok);color:var(--ok);
+        }
+        .level-tab.locked{opacity:.25;cursor:default}
+
+        /* ─── PROGRESS BAR ─── */
+        .progress-wrap{margin-bottom:16px}
+        .progress-label{
+            font-family:'Fredoka',sans-serif;font-weight:600;
+            font-size:.8rem;color:var(--text-mid);margin-bottom:4px;
+        }
+        .progress-bar{
+            height:10px;background:#E8E0D6;border-radius:6px;
+            border:2px solid var(--border);overflow:hidden;
+        }
+        .progress-fill{
+            height:100%;background:var(--ok);border-radius:4px;
+            transition:width .4s ease;
+        }
+
+        /* ─── QUESTION CARD ─── */
+        .q-card{
+            background:var(--card);border:3px solid var(--border);
+            border-radius:20px;padding:28px 22px;
+            box-shadow:4px 4px 0 var(--border);margin-bottom:16px;
+        }
+        .q-card .q-level-tag{
+            font-family:'Fredoka',sans-serif;font-weight:600;
+            font-size:.75rem;color:var(--ok);
+            text-transform:uppercase;letter-spacing:.5px;
+            margin-bottom:8px;
+        }
+        .q-card .q-text{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.25rem;line-height:1.5;letter-spacing:-.2px;
+        }
+        .q-card .compare-display{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.8rem;text-align:center;
+            margin-top:14px;display:flex;align-items:center;
+            justify-content:center;gap:16px;
+        }
+        .compare-display .blank{
+            display:inline-block;width:48px;height:48px;
+            border:3px dashed var(--border);border-radius:12px;
+            animation:pulse 1.2s ease infinite;
+        }
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+        /* ─── ANSWER BUTTONS ─── */
+        .answers{margin-bottom:12px}
+        .answers-grid{
+            display:grid;grid-template-columns:1fr 1fr;gap:8px;
+        }
+        .answers-row{
+            display:flex;gap:8px;justify-content:center;
+        }
+        .ans-btn{
+            background:var(--card);border:3px solid var(--border);
+            border-bottom-width:5px;border-radius:14px;
+            padding:14px 10px;font-family:'Fredoka',sans-serif;
+            font-weight:600;font-size:1rem;color:var(--text);
+            cursor:pointer;transition:all .1s;
+            -webkit-tap-highlight-color:transparent;
+            text-align:center;word-break:break-word;
+        }
+        .ans-btn:hover:not(:disabled){transform:translateY(-2px)}
+        .ans-btn:active:not(:disabled){
+            transform:translateY(2px);border-bottom-width:3px;
+        }
+        .ans-btn:disabled{cursor:default;opacity:.35}
+        .ans-btn.correct{
+            background:var(--ok-bg);border-color:var(--ok);
+            opacity:1!important;
+        }
+        .ans-btn.wrong{
+            background:var(--no-bg);border-color:var(--no);
+            opacity:1!important;
+        }
+        .ans-btn.compare{
+            font-size:2rem;flex:1;max-width:100px;padding:12px 10px;
+        }
+
+        /* ─── FEEDBACK ─── */
+        .feedback{
+            max-height:0;opacity:0;overflow:hidden;
+            transition:max-height .35s ease,opacity .35s ease;
+            border-radius:16px;margin-bottom:12px;
+        }
+        .feedback.show{max-height:200px;opacity:1}
+        .feedback-inner{
+            padding:16px 18px;border-radius:16px;
+            border:3px solid var(--border);
+        }
+        .feedback.correct .feedback-inner{background:var(--ok-bg)}
+        .feedback.wrong .feedback-inner{background:var(--no-bg)}
+        .feedback-title{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.1rem;margin-bottom:4px;
+        }
+        .feedback-tip{font-size:.92rem;line-height:1.5;color:var(--text-mid)}
+
+        /* ─── CONTINUE BUTTON ─── */
+        .continue-btn{
+            display:none;width:100%;padding:16px;
+            background:#16A34A;color:#fff;border:3px solid var(--border);
+            border-bottom-width:7px;border-radius:16px;
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.1rem;cursor:pointer;
+            transition:all .1s;-webkit-tap-highlight-color:transparent;
+        }
+        .continue-btn.show{display:block}
+        .continue-btn:hover{transform:translateY(-2px)}
+        .continue-btn:active{
+            transform:translateY(4px);border-bottom-width:3px;
+        }
+
+        /* ─── PRIMARY BUTTON (intro, level complete, game complete) ─── */
+        .btn-primary{
+            display:inline-block;padding:16px 40px;
+            background:var(--ok);color:#fff;border:3px solid var(--border);
+            border-bottom-width:7px;border-radius:16px;
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.15rem;cursor:pointer;
+            transition:all .1s;-webkit-tap-highlight-color:transparent;
+        }
+        .btn-primary:hover{transform:translateY(-2px)}
+        .btn-primary:active{
+            transform:translateY(4px);border-bottom-width:3px;
+        }
+
+        /* ─── LEVEL COMPLETE / GAME COMPLETE ─── */
+        .complete-screen{text-align:center;padding-top:60px}
+        .complete-icon{font-size:4rem;display:block;margin-bottom:12px;animation:bounce .7s cubic-bezier(.34,1.56,.64,1)}
+        .complete-screen h2{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.8rem;letter-spacing:-.5px;margin-bottom:6px;
+        }
+        .complete-screen p{
+            color:var(--text-mid);font-size:1.05rem;
+            line-height:1.5;margin-bottom:24px;
+        }
+        .score-stats{
+            display:flex;gap:12px;justify-content:center;
+            margin-bottom:28px;flex-wrap:wrap;
+        }
+        .stat-box{
+            background:var(--card);border:3px solid var(--border);
+            border-radius:16px;padding:14px 18px;
+            box-shadow:3px 3px 0 var(--border);text-align:center;
+            min-width:90px;
+        }
+        .stat-box .stat-val{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.5rem;display:block;
+        }
+        .stat-box .stat-label{
+            font-size:.72rem;color:var(--text-mid);
+            font-family:'Fredoka',sans-serif;font-weight:600;
+            text-transform:uppercase;letter-spacing:.3px;
+        }
+        .link-btn{
+            display:inline-block;margin-top:10px;
+            font-family:'Fredoka',sans-serif;font-weight:600;
+            font-size:.95rem;color:var(--text-mid);
+            text-decoration:underline;cursor:pointer;
+        }
+        .link-btn:hover{color:var(--text)}
+
+        /* ─── CONFETTI ─── */
+        .confetti-wrap{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            pointer-events:none;z-index:100;overflow:hidden;
+        }
+        .confetti-piece{
+            position:absolute;top:-20px;width:10px;height:10px;
+            border-radius:2px;animation:confettiFall linear forwards;
+        }
+        @keyframes confettiFall{
+            0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+            80%{opacity:1}
+            100%{transform:translateY(100vh) rotate(var(--cspin,720deg));opacity:0}
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes shake{
+            0%,100%{transform:translateX(0)}
+            15%{transform:translateX(-8px)}
+            30%{transform:translateX(7px)}
+            45%{transform:translateX(-6px)}
+            60%{transform:translateX(5px)}
+            75%{transform:translateX(-3px)}
+            90%{transform:translateX(2px)}
+        }
+        @keyframes pop{
+            0%{transform:scale(1)}
+            50%{transform:scale(1.015)}
+            100%{transform:scale(1)}
+        }
+        .shake{animation:shake .45s ease}
+        .pop{animation:pop .4s ease}
+
+        /* ─── RESPONSIVE ─── */
+        @media(max-width:380px){
+            .intro h1{font-size:1.8rem}
+            .q-card .q-text{font-size:1.1rem}
+            .q-card{padding:22px 16px}
+            .ans-btn{padding:12px 8px;font-size:.92rem}
+            .ans-btn.compare{font-size:1.6rem}
+            .game-logo{font-size:.85rem}
+            .level-tab{font-size:.65rem;padding:6px 2px}
+        }
+    </style>
+</head>
+<body>
+
+<div class="snow" id="snow"></div>
+
+<div class="wrap">
+
+    <!-- INTRO SCREEN -->
+    <div class="screen active" id="intro-screen">
+        <div class="intro">
+            <span class="intro-icon">&#x1F50D;</span>
+            <h1>Number Detectives</h1>
+            <p>Solve cases with patterns, place value, and money!</p>
+            <button class="btn-primary" onclick="startGame()">Let's Go!</button>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div class="screen" id="game-screen">
+        <div class="game-header">
+            <a href="index.html" class="back-link">&#x2190; Back</a>
+            <span class="game-logo">&#x1F50D; Number Detectives</span>
+            <div class="stats">
+                <span class="streak" id="streak-display">&#x1F525; 0</span>
+                <span class="points-pill" id="points-display">0 pts</span>
+            </div>
+        </div>
+        <div class="level-tabs" id="level-tabs"></div>
+        <div class="progress-wrap">
+            <div class="progress-label" id="progress-label">Question 1 / 4</div>
+            <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="q-card" id="q-card">
+            <div class="q-level-tag" id="q-level-tag"></div>
+            <div class="q-text" id="q-text"></div>
+            <div class="compare-display" id="compare-display" style="display:none"></div>
+        </div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback">
+            <div class="feedback-inner">
+                <div class="feedback-title" id="feedback-title"></div>
+                <div class="feedback-tip" id="feedback-tip"></div>
+            </div>
+        </div>
+        <button class="continue-btn" id="continue-btn" onclick="nextQuestion()">Continue</button>
+    </div>
+
+    <!-- LEVEL COMPLETE SCREEN -->
+    <div class="screen" id="level-complete-screen">
+        <div class="complete-screen">
+            <span class="complete-icon">&#x1F389;</span>
+            <h2 id="lc-title"></h2>
+            <p id="lc-desc"></p>
+            <div class="score-stats" id="lc-stats"></div>
+            <button class="btn-primary" id="lc-btn" onclick="nextLevel()">Next Level</button>
+        </div>
+    </div>
+
+    <!-- GAME COMPLETE SCREEN -->
+    <div class="screen" id="game-complete-screen">
+        <div class="complete-screen">
+            <span class="complete-icon">&#x1F3C6;</span>
+            <h2>All Cases Solved!</h2>
+            <p>You're a true Number Detective! Amazing work!</p>
+            <div class="score-stats" id="gc-stats"></div>
+            <button class="btn-primary" onclick="resetGame()">Play Again</button>
+            <br>
+            <a href="index.html" class="link-btn">Back to Missions</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ─── SNOWFLAKES ─── */
+(function(){
+    var c=document.getElementById('snow');
+    var f=['\u2744','\u2745','\u2746','\u2022'];
+    for(var i=0;i<30;i++){
+        var el=document.createElement('div');
+        el.className='flake';
+        el.textContent=f[Math.random()*f.length|0];
+        var size=10+Math.random()*18;
+        var dur=6+Math.random()*10;
+        var delay=Math.random()*8;
+        var left=Math.random()*100;
+        var spin=180+Math.random()*540;
+        el.style.cssText='left:'+left+'%;--size:'+size+'px;font-size:'+size+'px;animation-duration:'+dur+'s;animation-delay:'+delay+'s;--spin:'+spin+'deg;opacity:'+(0.2+Math.random()*0.4)+';';
+        c.appendChild(el);
+    }
+})();
+
+/* ─── QUESTION DATA ─── */
+var levels=[
+    {name:"Pattern Patrol",subtitle:"Find the missing numbers!",qs:[
+        {q:"What's missing?\n47, ___, 67, 77, 87, 97",opts:["57","55","60","52"],ans:0,tip:"The pattern goes up by 10 each time! 47 + 10 = 57"},
+        {q:"What's missing?\n24, 26, ___, 30, 32, 34",opts:["27","28","29","25"],ans:1,tip:"The pattern goes up by 2 each time! 26 + 2 = 28"},
+        {q:"Which number does NOT belong?\n712, 714, 716, 718, 720, 722, 725",opts:["712","720","725","718"],ans:2,tip:"The pattern counts by 2s. After 722 should be 724, not 725!"},
+        {q:"Which shows skip counting by 2s?",opts:["2, 20, 22, 200","14, 16, 18, 20, 22","10, 12, 22, 34","1, 2, 3, 5, 8"],ans:1,tip:"14, 16, 18, 20, 22 \u2014 each number is 2 more than the last!"},
+    ]},
+    {name:"Number Line Moves",subtitle:"Jump along the number line!",qs:[
+        {q:"Start at 17. Move forward 20.\nWhere do you land?",opts:["27","37","47","35"],ans:1,tip:"17 + 20 = 37. You jumped forward 20!"},
+        {q:"Start at 29. Move forward 30, then back 17.\nWhat number?",opts:["42","52","46","40"],ans:0,tip:"29 + 30 = 59. Then 59 \u2212 17 = 42. Two jumps!"},
+        {q:"Start at 50. Move back 15.\nWhere do you land?",opts:["45","35","40","25"],ans:1,tip:"50 \u2212 15 = 35. You jumped back 15 spots!"},
+    ]},
+    {name:"Place Value X-Ray",subtitle:"See inside the numbers!",qs:[
+        {q:"How many HUNDREDS are in 486?",opts:["4","8","6","48"],ans:0,tip:"The 4 is in the hundreds place. There are 4 hundreds!"},
+        {q:"What is the VALUE of the digit 3 in 378?",opts:["3","30","300","3,000"],ans:2,tip:"The 3 is in the hundreds place, so its value is 300!"},
+        {q:"What is 396 in expanded form?",opts:["300 + 90 + 6","3 + 9 + 6","390 + 6","30 + 90 + 6"],ans:0,tip:"396 = 300 + 90 + 6. Each digit shows its place value!"},
+        {q:"What is 80 + 4 in standard form?",opts:["804","84","48","840"],ans:1,tip:"80 + 4 = 84!"},
+        {q:"3 hundreds, 9 tens, 6 ones = ?",opts:["396","369","936","639"],ans:0,tip:"300 + 90 + 6 = 396!"},
+    ]},
+    {name:"Money Detective",subtitle:"Count the coins and bills!",qs:[
+        {q:"How many dollar bills equal 400 pennies?",opts:["4","40","400","2"],ans:0,tip:"100 pennies = 1 dollar. 400 \u00f7 100 = 4 dollars!"},
+        {q:"2 dollar bills + 21 dimes + 33 pennies = ?",opts:["$2.54","$4.43","$4.33","$2.33"],ans:1,tip:"$2.00 + $2.10 + $0.33 = $4.43!"},
+        {q:"1 hundred, 2 tens, 3 ones = ?",opts:["123","213","321","132"],ans:0,tip:"100 + 20 + 3 = 123!"},
+    ]},
+    {name:"Compare Champion",subtitle:"Which number wins?",qs:[
+        {q:"Which is the SMALLEST?\n316, 780, 314, 297",opts:["316","780","314","297"],ans:3,tip:"297 is the smallest \u2014 it has fewer hundreds!"},
+        {q:"450 ___ 405",opts:[">","<","="],ans:0,tip:"450 is greater than 405. Look at the tens: 5 > 0!",isCompare:true},
+        {q:"376 ___ 368",opts:[">","<","="],ans:0,tip:"376 > 368. Same hundreds, but 76 > 68!",isCompare:true},
+        {q:"312 ___ 403",opts:[">","<","="],ans:1,tip:"312 < 403. 3 hundreds is less than 4 hundreds!",isCompare:true},
+        {q:"592 ___ 356",opts:[">","<","="],ans:0,tip:"592 > 356. 5 hundreds beats 3 hundreds!",isCompare:true},
+        {q:"Largest to smallest:\n389, 227, 174, 102",opts:["389, 227, 174, 102","102, 174, 227, 389","389, 174, 227, 102"],ans:0,tip:"389 > 227 > 174 > 102. Largest to smallest!"},
+    ]},
+];
+
+var levelMessages=[
+    {t:"Patterns Found!",d:"You cracked the number codes!"},
+    {t:"Number Line Pro!",d:"You jumped like a math champ!"},
+    {t:"X-Ray Vision!",d:"You see right through those numbers!"},
+    {t:"Money Counted!",d:"Every penny accounted for!"},
+    {t:"All Cases Solved!",d:"You're a true Number Detective!"},
+];
+
+/* ─── GAME STATE ─── */
+var curLevel=0, curQ=0, points=0, streak=0, bestStreak=0;
+var totalCorrect=0, totalAnswered=0;
+var levelCorrect=0;
+var answered=false;
+
+/* ─── SCREEN MANAGEMENT ─── */
+function showScreen(id){
+    var screens=document.querySelectorAll('.screen');
+    for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+    var el=document.getElementById(id);
+    el.classList.remove('active');
+    // Force reflow for animation restart
+    void el.offsetWidth;
+    el.classList.add('active');
+}
+
+/* ─── GAME START ─── */
+function startGame(){
+    curLevel=0;curQ=0;points=0;streak=0;bestStreak=0;
+    totalCorrect=0;totalAnswered=0;levelCorrect=0;answered=false;
+    showScreen('game-screen');
+    renderTabs();
+    renderQuestion();
+    updateStats();
+}
+
+/* ─── TABS ─── */
+function renderTabs(){
+    var wrap=document.getElementById('level-tabs');
+    wrap.innerHTML='';
+    for(var i=0;i<levels.length;i++){
+        var tab=document.createElement('div');
+        tab.className='level-tab';
+        tab.textContent=(i+1)+'. '+levels[i].name;
+        if(i===curLevel) tab.classList.add('current');
+        else if(i<curLevel) tab.classList.add('done');
+        else tab.classList.add('locked');
+        wrap.appendChild(tab);
+    }
+}
+
+/* ─── RENDER QUESTION ─── */
+function renderQuestion(){
+    var lv=levels[curLevel];
+    var q=lv.qs[curQ];
+    answered=false;
+
+    // Progress
+    document.getElementById('progress-label').textContent='Question '+(curQ+1)+' / '+lv.qs.length;
+    document.getElementById('progress-fill').style.width=((curQ/lv.qs.length)*100)+'%';
+
+    // Level tag
+    document.getElementById('q-level-tag').textContent='Level '+(curLevel+1)+': '+lv.name;
+
+    // Question text
+    var qCard=document.getElementById('q-card');
+    var qText=document.getElementById('q-text');
+    var compareDisplay=document.getElementById('compare-display');
+
+    // Reset animations
+    qCard.classList.remove('shake','pop');
+
+    if(q.isCompare){
+        // Parse the two numbers from the question "450 ___ 405"
+        var parts=q.q.split('___');
+        var numA=parts[0].trim();
+        var numB=parts[1].trim();
+        qText.innerHTML='Which symbol goes in the blank?';
+        compareDisplay.style.display='flex';
+        compareDisplay.innerHTML='<span>'+numA+'</span><div class="blank"></div><span>'+numB+'</span>';
+    } else {
+        qText.innerHTML=q.q.replace(/\n/g,'<br>');
+        compareDisplay.style.display='none';
+    }
+
+    // Answer buttons
+    var answersWrap=document.getElementById('answers');
+    answersWrap.innerHTML='';
+
+    if(q.isCompare || q.opts.length===3){
+        // Row layout for 3 options (or compare)
+        var row=document.createElement('div');
+        row.className='answers-row';
+        for(var i=0;i<q.opts.length;i++){
+            var btn=document.createElement('button');
+            btn.className='ans-btn'+(q.isCompare?' compare':'');
+            btn.textContent=q.opts[i];
+            btn.setAttribute('data-idx',i);
+            btn.onclick=handleAnswer;
+            row.appendChild(btn);
+        }
+        answersWrap.appendChild(row);
+    } else {
+        // Grid layout for 4 options
+        var grid=document.createElement('div');
+        grid.className='answers-grid';
+        for(var i=0;i<q.opts.length;i++){
+            var btn=document.createElement('button');
+            btn.className='ans-btn';
+            btn.textContent=q.opts[i];
+            btn.setAttribute('data-idx',i);
+            btn.onclick=handleAnswer;
+            grid.appendChild(btn);
+        }
+        answersWrap.appendChild(grid);
+    }
+
+    // Hide feedback and continue
+    document.getElementById('feedback').classList.remove('show','correct','wrong');
+    document.getElementById('continue-btn').classList.remove('show');
+}
+
+/* ─── HANDLE ANSWER ─── */
+function handleAnswer(e){
+    if(answered) return;
+    answered=true;
+
+    var idx=parseInt(e.target.getAttribute('data-idx'));
+    var lv=levels[curLevel];
+    var q=lv.qs[curQ];
+    var correct=idx===q.ans;
+
+    totalAnswered++;
+
+    // Disable all buttons
+    var btns=document.querySelectorAll('.ans-btn');
+    for(var i=0;i<btns.length;i++){
+        btns[i].disabled=true;
+        if(parseInt(btns[i].getAttribute('data-idx'))===q.ans){
+            btns[i].classList.add('correct');
+        }
+    }
+
+    var qCard=document.getElementById('q-card');
+    var fb=document.getElementById('feedback');
+    var fbTitle=document.getElementById('feedback-title');
+    var fbTip=document.getElementById('feedback-tip');
+
+    if(correct){
+        totalCorrect++;
+        levelCorrect++;
+        streak++;
+        if(streak>bestStreak) bestStreak=streak;
+
+        points+=10;
+        if(streak>=3) points+=5;
+
+        qCard.classList.add('pop');
+        e.target.classList.add('correct');
+        fb.className='feedback correct';
+
+        var phrases=["Awesome!","Great job!","Nailed it!","You got it!","Amazing!","Super smart!"];
+        fbTitle.textContent=phrases[Math.random()*phrases.length|0];
+    } else {
+        streak=0;
+        e.target.classList.add('wrong');
+        qCard.classList.add('shake');
+        fb.className='feedback wrong';
+        fbTitle.textContent="Not quite!";
+    }
+
+    fbTip.textContent=q.tip;
+    fb.classList.add('show');
+    document.getElementById('continue-btn').classList.add('show');
+    updateStats();
+}
+
+/* ─── NEXT QUESTION ─── */
+function nextQuestion(){
+    curQ++;
+    var lv=levels[curLevel];
+    if(curQ>=lv.qs.length){
+        // Level complete
+        showLevelComplete();
+    } else {
+        renderQuestion();
+    }
+}
+
+/* ─── LEVEL COMPLETE ─── */
+function showLevelComplete(){
+    var msg=levelMessages[curLevel];
+    document.getElementById('lc-title').textContent=msg.t;
+    document.getElementById('lc-desc').textContent=msg.d;
+
+    var lv=levels[curLevel];
+    document.getElementById('lc-stats').innerHTML=
+        '<div class="stat-box"><span class="stat-val">'+levelCorrect+'/'+lv.qs.length+'</span><span class="stat-label">Correct</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+points+'</span><span class="stat-label">Points</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+bestStreak+'</span><span class="stat-label">Best Streak</span></div>';
+
+    var isLast=curLevel>=levels.length-1;
+    document.getElementById('lc-btn').textContent=isLast?'See Results':'Next Level';
+    document.getElementById('lc-btn').onclick=isLast?showGameComplete:nextLevel;
+
+    showScreen('level-complete-screen');
+    fireConfetti();
+}
+
+/* ─── NEXT LEVEL ─── */
+function nextLevel(){
+    curLevel++;
+    curQ=0;
+    levelCorrect=0;
+    if(curLevel>=levels.length){
+        showGameComplete();
+        return;
+    }
+    showScreen('game-screen');
+    renderTabs();
+    renderQuestion();
+}
+
+/* ─── GAME COMPLETE ─── */
+function showGameComplete(){
+    var totalQ=0;
+    for(var i=0;i<levels.length;i++) totalQ+=levels[i].qs.length;
+    document.getElementById('gc-stats').innerHTML=
+        '<div class="stat-box"><span class="stat-val">'+totalCorrect+'/'+totalQ+'</span><span class="stat-label">Correct</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+points+'</span><span class="stat-label">Points</span></div>'+
+        '<div class="stat-box"><span class="stat-val">'+bestStreak+'</span><span class="stat-label">Best Streak</span></div>';
+    showScreen('game-complete-screen');
+    fireConfetti();
+}
+
+/* ─── RESET ─── */
+function resetGame(){
+    curLevel=0;curQ=0;points=0;streak=0;bestStreak=0;
+    totalCorrect=0;totalAnswered=0;levelCorrect=0;answered=false;
+    showScreen('intro-screen');
+}
+
+/* ─── UPDATE STATS ─── */
+function updateStats(){
+    document.getElementById('streak-display').innerHTML='&#x1F525; '+streak;
+    document.getElementById('points-display').textContent=points+' pts';
+}
+
+/* ─── CONFETTI ─── */
+function fireConfetti(){
+    var wrap=document.createElement('div');
+    wrap.className='confetti-wrap';
+    document.body.appendChild(wrap);
+    var colors=['#22C55E','#EF4444','#3B82F6','#F59E0B','#8B5CF6','#EC4899','#14B8A6'];
+    for(var i=0;i<55;i++){
+        var piece=document.createElement('div');
+        piece.className='confetti-piece';
+        var c=colors[Math.random()*colors.length|0];
+        var left=Math.random()*100;
+        var dur=1.5+Math.random()*2;
+        var delay=Math.random()*0.8;
+        var w=6+Math.random()*8;
+        var h=6+Math.random()*8;
+        var spin=360+Math.random()*720;
+        piece.style.cssText='left:'+left+'%;background:'+c+';width:'+w+'px;height:'+h+'px;animation-duration:'+dur+'s;animation-delay:'+delay+'s;--cspin:'+spin+'deg;border-radius:'+(Math.random()>0.5?'50%':'2px')+';';
+        wrap.appendChild(piece);
+    }
+    setTimeout(function(){wrap.remove()},4000);
+}
+</script>
+</body>
+</html>
