@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FFF8F0">
+    <title>Teacher Dashboard — Snow Day Missions</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E2%9D%84%EF%B8%8F</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* ─── RESET & TOKENS ─── */
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#FFF8F0;--card:#FFFFFF;--border:#2D2D2D;
+            --text:#2D2D2D;--text-mid:#555;--text-light:#888;
+            --reading:#3B82F6;--reading-bg:#DBEAFE;
+            --math-jr:#22C55E;--math-jr-bg:#DCFCE7;
+            --math-sr:#FF9500;--math-sr-bg:#FFF0DD;
+            --correct:#22C55E;--correct-bg:#DCFCE7;
+            --wrong:#EF4444;--wrong-bg:#FEE2E2;
+            --green-pct:#22C55E;--orange-pct:#FF9500;--red-pct:#EF4444;
+            --shadow: 4px 4px 0 var(--border);
+            --shadow-sm: 2px 2px 0 var(--border);
+        }
+        html{font-size:16px}
+        body{
+            font-family:'DM Sans',system-ui,sans-serif;
+            background:var(--bg);color:var(--text);
+            min-height:100vh;min-height:100dvh;
+            display:flex;flex-direction:column;align-items:center;
+            padding:30px 16px 60px;overflow-x:hidden;
+            -webkit-font-smoothing:antialiased;position:relative;
+        }
+        .wrap{width:100%;max-width:1100px;position:relative;z-index:1}
+
+        /* ─── SNOWFLAKES ─── */
+        .snow{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
+        .flake{
+            position:absolute;top:-20px;color:#B8D4E8;opacity:.6;
+            animation:fall linear infinite;font-size:var(--size,16px);
+        }
+        @keyframes fall{
+            0%{transform:translateY(-20px) rotate(0deg)}
+            100%{transform:translateY(calc(100vh + 40px)) rotate(var(--spin,360deg))}
+        }
+
+        /* ─── REDUCED MOTION ─── */
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+            .snow,.flake{display:none!important}
+        }
+
+        /* ─── HEADER ─── */
+        .header{
+            display:flex;flex-direction:column;align-items:center;
+            text-align:center;margin-bottom:28px;gap:10px;
+        }
+        .header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:center}
+        .header-icon{font-size:2.4rem;line-height:1;display:block}
+        .header h1{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.9rem;letter-spacing:-.5px;
+        }
+        .header-meta{color:var(--text-mid);font-size:.93rem;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:center}
+        .header-meta span{display:flex;align-items:center;gap:5px}
+
+        /* refresh indicator */
+        .refresh-dot{
+            width:8px;height:8px;border-radius:50%;background:var(--correct);
+            display:inline-block;flex-shrink:0;
+        }
+        .refresh-dot.spinning{
+            background:transparent;
+            border:2px solid var(--text-light);
+            border-top-color:var(--text);
+            animation:spin .7s linear infinite;
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* ─── HEADER ACTIONS ─── */
+        .header-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+        .btn{
+            display:inline-flex;align-items:center;gap:6px;
+            padding:8px 18px;border-radius:12px;
+            border:2.5px solid var(--border);box-shadow:var(--shadow-sm);
+            font-family:'DM Sans',sans-serif;font-weight:700;font-size:.83rem;
+            cursor:pointer;background:var(--card);color:var(--text);
+            text-decoration:none;transition:transform .1s,box-shadow .1s;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .btn:hover{transform:translateY(-2px);box-shadow:2px 4px 0 var(--border)}
+        .btn:active{transform:translateY(1px);box-shadow:1px 1px 0 var(--border)}
+        .btn-primary{background:var(--text);color:var(--bg)}
+        .btn-toggle{font-size:.78rem;padding:6px 14px}
+        .btn-toggle.active{background:#E8F5E9;border-color:var(--correct);color:var(--correct)}
+        .btn-back{font-size:.78rem;padding:6px 14px}
+
+        /* ─── EMPTY STATE ─── */
+        .empty{
+            text-align:center;padding:60px 20px;
+            background:var(--card);border:3px solid var(--border);
+            border-radius:20px;box-shadow:var(--shadow);
+            animation:fadeUp .5s ease both;
+        }
+        .empty-icon{font-size:3rem;margin-bottom:14px;display:block}
+        .empty h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.4rem;margin-bottom:8px}
+        .empty p{color:var(--text-mid);font-size:.95rem;line-height:1.6;max-width:360px;margin:0 auto}
+
+        /* ─── ERROR STATE ─── */
+        .error-bar{
+            background:#FEE2E2;border:2.5px solid var(--wrong);border-radius:12px;
+            padding:12px 18px;font-size:.88rem;color:#B91C1C;
+            margin-bottom:18px;display:none;
+        }
+        .error-bar.visible{display:block}
+
+        /* ─── TABLE WRAPPER ─── */
+        .table-wrap{
+            background:var(--card);border:3px solid var(--border);
+            border-radius:20px;box-shadow:var(--shadow);
+            overflow:hidden;animation:fadeUp .5s ease both;
+        }
+        .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+        /* ─── SUMMARY TABLE ─── */
+        table{width:100%;border-collapse:collapse;min-width:600px}
+        thead th{
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:.88rem;
+            letter-spacing:.2px;text-align:left;
+            padding:14px 18px;border-bottom:2.5px solid var(--border);
+            background:#FAFAFA;white-space:nowrap;
+        }
+        thead th:first-child{border-radius:0}
+        thead .th-reading{color:var(--reading)}
+        thead .th-math-jr{color:var(--math-jr)}
+        thead .th-math-sr{color:var(--math-sr)}
+
+        tbody tr.student-row{
+            cursor:pointer;transition:background .12s;
+            border-bottom:2px solid #E5E5E5;
+        }
+        tbody tr.student-row:last-of-type{border-bottom:none}
+        tbody tr.student-row:hover{background:#FFFBF5}
+        tbody tr.student-row.expanded{background:#FFFBF5}
+
+        tbody td{padding:13px 18px;font-size:.9rem;vertical-align:middle}
+        .td-name{
+            font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;
+            white-space:nowrap;
+        }
+        .expand-arrow{
+            font-size:.75rem;color:var(--text-light);
+            transition:transform .2s;flex-shrink:0;
+        }
+        .expanded .expand-arrow{transform:rotate(90deg)}
+
+        /* mission cell */
+        .mission-cell{min-width:130px}
+        .cell-score{font-weight:700;font-size:.95rem;display:block;margin-bottom:1px}
+        .cell-sub{font-size:.78rem;color:var(--text-mid)}
+        .cell-pct{
+            display:inline-block;font-weight:700;font-size:.78rem;
+            padding:2px 8px;border-radius:20px;border:2px solid currentColor;
+            margin-left:6px;
+        }
+        .pct-green{color:var(--green-pct);background:#F0FDF4}
+        .pct-orange{color:var(--orange-pct);background:#FFF7ED}
+        .pct-red{color:var(--red-pct);background:#FEF2F2}
+        .pct-none{color:var(--text-light);background:#F5F5F5;border-color:#D1D5DB}
+
+        .td-total{font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.05rem}
+        .td-dash{color:var(--text-light);font-size:.95rem}
+
+        /* ─── DRILL-DOWN ROW ─── */
+        tr.drill-row{display:none}
+        tr.drill-row.open{display:table-row}
+        .drill-row td{padding:0;background:#FFFBF5;border-bottom:2.5px solid var(--border)}
+        .drill-inner{padding:18px 20px 24px}
+
+        .drill-missions{display:flex;flex-direction:column;gap:16px}
+
+        .drill-mission{
+            border:2.5px solid var(--border);border-radius:16px;
+            background:var(--card);box-shadow:var(--shadow-sm);overflow:hidden;
+        }
+        .drill-mission-header{
+            display:flex;align-items:center;gap:10px;
+            padding:12px 16px;border-bottom:2px solid var(--border);
+        }
+        .drill-mission-icon{
+            width:36px;height:36px;border-radius:10px;border:2px solid var(--border);
+            display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+            flex-shrink:0;box-shadow:1px 1px 0 var(--border);
+        }
+        .drill-mission-title{
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:1rem;flex:1;
+        }
+        .drill-mission-summary{font-size:.8rem;color:var(--text-mid)}
+
+        /* level section */
+        .drill-level{border-top:1.5px solid #E5E5E5}
+        .drill-level:first-child{border-top:none}
+        .drill-level-header{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:10px 16px;background:#FAFAFA;
+        }
+        .drill-level-name{font-weight:700;font-size:.85rem}
+        .drill-level-score{font-size:.8rem;color:var(--text-mid);text-align:right}
+
+        /* question table inside drill */
+        .q-table{width:100%;border-collapse:collapse}
+        .q-table th{
+            font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;
+            color:var(--text-light);padding:6px 16px;background:#F9F9F9;
+            border-top:1px solid #E5E5E5;border-bottom:1px solid #E5E5E5;
+            text-align:left;white-space:nowrap;
+        }
+        .q-table td{
+            padding:8px 16px;font-size:.83rem;border-bottom:1px solid #F0F0F0;
+            vertical-align:top;
+        }
+        .q-table tr:last-child td{border-bottom:none}
+        .q-table tr:hover td{background:#FAFAFA}
+        .q-num{color:var(--text-light);font-size:.78rem;white-space:nowrap}
+        .q-text{max-width:300px;line-height:1.4;color:var(--text-mid)}
+        .q-answer{font-weight:700;white-space:nowrap}
+        .q-correct-ans{color:var(--correct);font-weight:700;white-space:nowrap}
+        .q-wrong-ans{color:var(--wrong);font-weight:700;white-space:nowrap}
+        .q-result{text-align:center;white-space:nowrap}
+        .result-icon{font-size:1rem}
+        .result-ok{color:var(--correct)}
+        .result-bad{color:var(--wrong)}
+        .q-pts{text-align:right;font-size:.8rem;color:var(--text-mid);white-space:nowrap}
+
+        /* ─── LOADING SKELETON ─── */
+        .skeleton{
+            background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+            background-size:200% 100%;animation:shimmer 1.4s infinite;
+            border-radius:6px;display:inline-block;
+        }
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+        /* ─── MISSION COLOR THEMES ─── */
+        .mission-reading .drill-mission-icon{background:var(--reading-bg);color:var(--reading)}
+        .mission-reading .drill-mission-title{color:var(--reading)}
+        .mission-math-jr .drill-mission-icon{background:var(--math-jr-bg);color:var(--math-jr)}
+        .mission-math-jr .drill-mission-title{color:var(--math-jr)}
+        .mission-math-sr .drill-mission-icon{background:var(--math-sr-bg);color:var(--math-sr)}
+        .mission-math-sr .drill-mission-title{color:var(--math-sr)}
+
+        /* ─── FOOTER ─── */
+        .footer{text-align:center;margin-top:28px;font-size:.78rem;color:var(--text-light)}
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+        /* ─── RESPONSIVE ─── */
+        @media(min-width:768px){
+            .header h1{font-size:2.3rem}
+            .header-icon{font-size:2.8rem}
+        }
+        @media(min-width:1024px){
+            body{padding:50px 24px 80px}
+            .header h1{font-size:2.6rem}
+            .drill-missions{flex-direction:row;flex-wrap:wrap}
+            .drill-mission{flex:1;min-width:280px}
+        }
+        @media(max-width:480px){
+            body{padding:20px 12px 50px}
+            .header h1{font-size:1.55rem}
+            tbody td{padding:10px 12px}
+            thead th{padding:12px 12px}
+            .q-table th,.q-table td{padding:6px 10px}
+            .q-text{max-width:160px}
+            .drill-inner{padding:12px 12px 18px}
+        }
+    </style>
+</head>
+<body>
+
+<!-- ─── SNOW ─── -->
+<div class="snow" id="snow"></div>
+
+<div class="wrap">
+
+    <!-- ─── HEADER ─── -->
+    <header class="header">
+        <div class="header-top">
+            <span class="header-icon">&#x2744;&#xFE0F;</span>
+            <h1>Snow Day Missions</h1>
+        </div>
+        <div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.05rem;color:var(--text-mid)">
+            Teacher Dashboard
+        </div>
+        <div class="header-meta">
+            <span id="stat-students">— students</span>
+            <span>&#183;</span>
+            <span id="stat-answers">— answers</span>
+            <span>&#183;</span>
+            <span>
+                <span class="refresh-dot" id="refresh-dot"></span>
+                <span id="last-updated">Loading&hellip;</span>
+            </span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-primary" id="btn-csv" onclick="exportCSV()" aria-label="Export all data as CSV">
+                &#x2B07; CSV Export
+            </button>
+            <button class="btn btn-toggle" id="btn-refresh" onclick="toggleAutoRefresh()" aria-pressed="true" aria-label="Toggle auto-refresh">
+                &#x1F504; Auto-refresh: ON
+            </button>
+            <a href="index.html" class="btn btn-back" aria-label="Back to missions home">
+                &#x2190; Missions
+            </a>
+        </div>
+    </header>
+
+    <!-- ─── ERROR BAR ─── -->
+    <div class="error-bar" id="error-bar" role="alert"></div>
+
+    <!-- ─── MAIN CONTENT ─── -->
+    <main id="main-content" aria-live="polite" aria-label="Student progress table">
+        <!-- populated by JS -->
+    </main>
+
+    <footer class="footer">Snow Day Missions &mdash; Teacher Dashboard</footer>
+</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   CONFIGURATION
+───────────────────────────────────────────── */
+const SUPABASE_URL  = 'https://gpvvxfgpxzhhrvypblvz.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdnZ4ZmdweHpoaHJ2eXBibHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM2NjMsImV4cCI6MjA4Nzc5OTY2M30.bGHqMi-QdKXkSnsB2b3kpoG72xVd_xYxRAWENnORP7A';
+const REFRESH_MS    = 30_000;
+
+const MISSIONS = {
+    'reading'     : { label:'Decoder Mission',       short:'Reading',  icon:'&#x1F4D6;', cls:'reading'  },
+    'math-junior' : { label:'Number Detectives',     short:'Math Jr',  icon:'&#x1F50D;', cls:'math-jr'  },
+    'math-senior' : { label:'Number Ops Challenge',  short:'Math Sr',  icon:'&#x1F680;', cls:'math-sr'  },
+};
+const MISSION_ORDER = ['reading','math-junior','math-senior'];
+
+/* ─────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────── */
+let db;
+let allStudents = [];
+let allAnswers  = [];
+let expandedIds = new Set();
+let autoRefresh = true;
+let refreshTimer = null;
+
+/* ─────────────────────────────────────────────
+   SNOWFLAKES
+───────────────────────────────────────────── */
+(function(){
+    const container = document.getElementById('snow');
+    const flakes = ['&#x2744;','&#x2745;','&#x2746;','&#x2022;'];
+    for(let i = 0; i < 28; i++){
+        const el = document.createElement('div');
+        el.className = 'flake';
+        el.innerHTML = flakes[Math.random()*flakes.length|0];
+        const size  = 10 + Math.random()*18;
+        const dur   = 6  + Math.random()*10;
+        const delay = Math.random()*8;
+        const left  = Math.random()*100;
+        const spin  = 180 + Math.random()*540;
+        el.style.cssText = `left:${left}%;--size:${size}px;font-size:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;--spin:${spin}deg;opacity:${.2+Math.random()*.4};`;
+        container.appendChild(el);
+    }
+})();
+
+/* ─────────────────────────────────────────────
+   INIT SUPABASE
+───────────────────────────────────────────── */
+function initSupabase(){
+    const { createClient } = window.supabase;
+    db = createClient(SUPABASE_URL, SUPABASE_ANON);
+}
+
+/* ─────────────────────────────────────────────
+   DATA FETCHING
+───────────────────────────────────────────── */
+async function fetchData(){
+    setRefreshSpinning(true);
+    try {
+        const [studRes, ansRes] = await Promise.all([
+            db.from('sdm_students').select('*').order('name', {ascending:true}),
+            db.from('sdm_answers').select('*').order('answered_at', {ascending:true}),
+        ]);
+        if(studRes.error) throw studRes.error;
+        if(ansRes.error)  throw ansRes.error;
+
+        allStudents = studRes.data || [];
+        allAnswers  = ansRes.data  || [];
+
+        hideError();
+        updateLastUpdated();
+        updateStats();
+        render();
+    } catch(err){
+        showError('Could not load data: ' + (err.message || 'Unknown error'));
+    } finally {
+        setRefreshSpinning(false);
+    }
+}
+
+/* ─────────────────────────────────────────────
+   AUTO-REFRESH
+───────────────────────────────────────────── */
+function scheduleRefresh(){
+    clearTimeout(refreshTimer);
+    if(autoRefresh) refreshTimer = setTimeout(()=>{ fetchData().then(scheduleRefresh); }, REFRESH_MS);
+}
+
+function toggleAutoRefresh(){
+    autoRefresh = !autoRefresh;
+    const btn = document.getElementById('btn-refresh');
+    btn.setAttribute('aria-pressed', autoRefresh ? 'true' : 'false');
+    if(autoRefresh){
+        btn.classList.add('active');
+        btn.innerHTML = '&#x1F504; Auto-refresh: ON';
+        scheduleRefresh();
+    } else {
+        btn.classList.remove('active');
+        btn.innerHTML = '&#x23F8; Auto-refresh: OFF';
+        clearTimeout(refreshTimer);
+    }
+}
+
+/* ─────────────────────────────────────────────
+   UI HELPERS
+───────────────────────────────────────────── */
+function setRefreshSpinning(on){
+    const dot = document.getElementById('refresh-dot');
+    dot.classList.toggle('spinning', on);
+}
+
+function updateLastUpdated(){
+    const now = new Date();
+    const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    document.getElementById('last-updated').textContent = 'Updated ' + time;
+}
+
+function updateStats(){
+    document.getElementById('stat-students').textContent =
+        allStudents.length + (allStudents.length === 1 ? ' student' : ' students');
+    document.getElementById('stat-answers').textContent =
+        allAnswers.length + (allAnswers.length === 1 ? ' answer' : ' answers');
+}
+
+function showError(msg){
+    const bar = document.getElementById('error-bar');
+    bar.textContent = msg;
+    bar.classList.add('visible');
+}
+
+function hideError(){
+    document.getElementById('error-bar').classList.remove('visible');
+}
+
+/* ─────────────────────────────────────────────
+   DATA AGGREGATION
+───────────────────────────────────────────── */
+function studentAnswers(studentId){
+    return allAnswers.filter(a => a.student_id === studentId);
+}
+
+function missionStats(answers, mission){
+    const ma = answers.filter(a => a.mission === mission);
+    if(ma.length === 0) return null;
+    const correct = ma.filter(a => a.is_correct).length;
+    const points  = ma.reduce((s,a) => s + (a.points_earned||0), 0);
+    const pct     = Math.round((correct / ma.length) * 100);
+    return { correct, total:ma.length, points, pct };
+}
+
+function pctClass(pct){
+    if(pct === null) return 'pct-none';
+    if(pct >= 80)   return 'pct-green';
+    if(pct >= 50)   return 'pct-orange';
+    return 'pct-red';
+}
+
+/* group answers by level for one student+mission */
+function groupByLevel(answers, mission){
+    const ma = answers.filter(a => a.mission === mission);
+    const levels = {};
+    for(const a of ma){
+        const key = a.level_name || ('Level ' + a.level_index);
+        if(!levels[key]) levels[key] = { name:key, index:a.level_index, questions:[] };
+        levels[key].questions.push(a);
+    }
+    /* sort levels by level_index, then questions by question_index */
+    return Object.values(levels)
+        .sort((a,b) => (a.index||0) - (b.index||0))
+        .map(lv => ({
+            ...lv,
+            questions: lv.questions.slice().sort((a,b) => (a.question_index||0) - (b.question_index||0))
+        }));
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: EMPTY STATE
+───────────────────────────────────────────── */
+function renderEmpty(){
+    return `
+    <div class="empty" role="status">
+        <span class="empty-icon">&#x26C4;</span>
+        <h2>No student data yet</h2>
+        <p>Students will appear here as they complete missions. This page auto-refreshes every 30 seconds.</p>
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: PCT BADGE
+───────────────────────────────────────────── */
+function renderPct(pct){
+    if(pct === null) return '';
+    return `<span class="cell-pct ${pctClass(pct)}">${pct}%</span>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: MISSION CELL
+───────────────────────────────────────────── */
+function renderMissionCell(stats){
+    if(!stats) return `<td class="mission-cell td-dash" aria-label="Not started">&mdash;</td>`;
+    return `
+    <td class="mission-cell">
+        <span class="cell-score">${stats.points} pts${renderPct(stats.pct)}</span>
+        <span class="cell-sub">${stats.correct}/${stats.total} correct</span>
+    </td>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: DRILL-DOWN
+───────────────────────────────────────────── */
+function renderDrillDown(student, answers){
+    const sections = MISSION_ORDER.map(mission => {
+        const m      = MISSIONS[mission];
+        const levels = groupByLevel(answers, mission);
+        if(levels.length === 0) return '';
+
+        const stats = missionStats(answers, mission);
+        const mSummary = stats ? `${stats.correct}/${stats.total} correct &middot; ${stats.points} pts` : '';
+
+        const levelsHtml = levels.map(lv => {
+            const lvCorrect = lv.questions.filter(q => q.is_correct).length;
+            const lvPts     = lv.questions.reduce((s,q) => s + (q.points_earned||0), 0);
+
+            const qRows = lv.questions.map((q, qi) => {
+                const isOk      = q.is_correct;
+                const ansClass  = isOk ? 'q-correct-ans' : 'q-wrong-ans';
+                const iconCls   = isOk ? 'result-ok' : 'result-bad';
+                const iconChar  = isOk ? '&#x2713;' : '&#x2717;';
+                /* truncate long question text */
+                const qText     = q.question_text ? escHtml(q.question_text).substring(0, 120) + (q.question_text.length > 120 ? '&hellip;' : '') : '&mdash;';
+                const studentAns= q.selected_answer ? escHtml(q.selected_answer) : '&mdash;';
+                const correctAns= q.correct_answer  ? escHtml(q.correct_answer)  : '&mdash;';
+                return `
+                <tr>
+                    <td class="q-num">Q${(q.question_index != null ? q.question_index + 1 : qi + 1)}</td>
+                    <td class="q-text">${qText}</td>
+                    <td class="q-answer ${ansClass}">${studentAns}</td>
+                    <td class="q-correct-ans">${correctAns}</td>
+                    <td class="q-result">
+                        <span class="result-icon ${iconCls}" aria-label="${isOk ? 'Correct' : 'Incorrect'}">${iconChar}</span>
+                    </td>
+                    <td class="q-pts">+${q.points_earned||0}</td>
+                </tr>`;
+            }).join('');
+
+            return `
+            <div class="drill-level">
+                <div class="drill-level-header">
+                    <span class="drill-level-name">${escHtml(lv.name)}</span>
+                    <span class="drill-level-score">${lvCorrect}/${lv.questions.length} correct &middot; ${lvPts} pts</span>
+                </div>
+                <table class="q-table" aria-label="Questions for ${escHtml(lv.name)}">
+                    <thead><tr>
+                        <th>#</th>
+                        <th>Question</th>
+                        <th>Student</th>
+                        <th>Correct</th>
+                        <th style="text-align:center">&#x2713;/&#x2717;</th>
+                        <th style="text-align:right">Pts</th>
+                    </tr></thead>
+                    <tbody>${qRows}</tbody>
+                </table>
+            </div>`;
+        }).join('');
+
+        return `
+        <div class="drill-mission mission-${m.cls}">
+            <div class="drill-mission-header">
+                <div class="drill-mission-icon" aria-hidden="true">${m.icon}</div>
+                <span class="drill-mission-title">${m.label}</span>
+                <span class="drill-mission-summary">${mSummary}</span>
+            </div>
+            ${levelsHtml}
+        </div>`;
+    }).join('');
+
+    return `
+    <tr class="drill-row${expandedIds.has(student.id) ? ' open' : ''}" id="drill-${student.id}" aria-label="Details for ${escHtml(student.name)}">
+        <td colspan="6">
+            <div class="drill-inner">
+                ${sections
+                    ? `<div class="drill-missions">${sections}</div>`
+                    : '<p style="color:var(--text-light);font-size:.9rem;padding:8px 0">No answers yet.</p>'
+                }
+            </div>
+        </td>
+    </tr>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: FULL TABLE
+───────────────────────────────────────────── */
+function renderTable(){
+    const rows = allStudents.map(student => {
+        const answers = studentAnswers(student.id);
+        const rs = missionStats(answers, 'reading');
+        const mjs= missionStats(answers, 'math-junior');
+        const mss= missionStats(answers, 'math-senior');
+        const total = (rs?.points||0) + (mjs?.points||0) + (mss?.points||0);
+        const isExp = expandedIds.has(student.id);
+
+        const mainRow = `
+        <tr class="student-row${isExp ? ' expanded' : ''}"
+            onclick="toggleDrill('${student.id}')"
+            aria-expanded="${isExp}"
+            aria-controls="drill-${student.id}"
+            tabindex="0"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDrill('${student.id}')}"
+            role="button"
+            aria-label="Toggle details for ${escHtml(student.name)}">
+            <td>
+                <div class="td-name">
+                    <span class="expand-arrow" aria-hidden="true">&#x276F;</span>
+                    ${escHtml(student.name)}
+                </div>
+            </td>
+            ${renderMissionCell(rs)}
+            ${renderMissionCell(mjs)}
+            ${renderMissionCell(mss)}
+            <td class="td-total">${total > 0 ? total + ' pts' : '<span class="td-dash">&mdash;</span>'}</td>
+        </tr>`;
+
+        const drillRow = renderDrillDown(student, answers);
+        return mainRow + drillRow;
+    }).join('');
+
+    return `
+    <div class="table-wrap">
+        <div class="table-scroll">
+            <table aria-label="Student progress summary">
+                <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col" class="th-reading">&#x1F4D6; Reading</th>
+                        <th scope="col" class="th-math-jr">&#x1F50D; Math Jr</th>
+                        <th scope="col" class="th-math-sr">&#x1F680; Math Sr</th>
+                        <th scope="col">Total</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────
+   RENDER: MAIN
+───────────────────────────────────────────── */
+function render(){
+    const main = document.getElementById('main-content');
+    if(allStudents.length === 0){
+        main.innerHTML = renderEmpty();
+        return;
+    }
+    main.innerHTML = renderTable();
+}
+
+/* ─────────────────────────────────────────────
+   TOGGLE DRILL-DOWN
+───────────────────────────────────────────── */
+function toggleDrill(studentId){
+    if(expandedIds.has(studentId)){
+        expandedIds.delete(studentId);
+    } else {
+        expandedIds.add(studentId);
+    }
+    /* update only the affected rows, not full re-render
+       (preserves scroll position + other expanded rows) */
+    const mainRow  = document.querySelector(`tr.student-row[aria-controls="drill-${studentId}"]`);
+    const drillRow = document.getElementById(`drill-${studentId}`);
+    if(!mainRow || !drillRow) return;
+
+    const isNowOpen = expandedIds.has(studentId);
+    mainRow.classList.toggle('expanded', isNowOpen);
+    mainRow.setAttribute('aria-expanded', isNowOpen ? 'true' : 'false');
+    drillRow.classList.toggle('open', isNowOpen);
+    /* update arrow */
+    const arrow = mainRow.querySelector('.expand-arrow');
+    if(arrow) arrow.style.transform = isNowOpen ? 'rotate(90deg)' : '';
+}
+
+/* ─────────────────────────────────────────────
+   CSV EXPORT
+───────────────────────────────────────────── */
+function exportCSV(){
+    const header = ['Student Name','Mission','Level','Question #','Question Text','Student Answer','Correct Answer','Correct?','Points','Time'];
+
+    const rows = [];
+    for(const student of allStudents){
+        const answers = studentAnswers(student.id);
+        if(answers.length === 0){
+            rows.push([student.name,'','','','','','','','','']);
+            continue;
+        }
+        for(const a of answers){
+            const missionLabel = MISSIONS[a.mission]?.short || a.mission || '';
+            const time = a.answered_at ? new Date(a.answered_at).toLocaleString() : '';
+            rows.push([
+                student.name,
+                missionLabel,
+                a.level_name || '',
+                a.question_index != null ? a.question_index + 1 : '',
+                a.question_text || '',
+                a.selected_answer || '',
+                a.correct_answer  || '',
+                a.is_correct ? 'Yes' : 'No',
+                a.points_earned != null ? a.points_earned : '',
+                time,
+            ]);
+        }
+    }
+
+    const csvContent = [header, ...rows]
+        .map(row => row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(','))
+        .join('\r\n');
+
+    const blob = new Blob([csvContent], { type:'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    const now  = new Date().toISOString().slice(0,10);
+    a.href     = url;
+    a.download = `snow-day-missions-${now}.csv`;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/* ─────────────────────────────────────────────
+   UTILITY: HTML ESCAPE
+───────────────────────────────────────────── */
+function escHtml(str){
+    if(!str) return '';
+    return String(str)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+}
+
+/* ─────────────────────────────────────────────
+   BOOT
+───────────────────────────────────────────── */
+(async function boot(){
+    /* show loading skeleton */
+    document.getElementById('main-content').innerHTML = `
+    <div class="table-wrap" style="padding:40px;text-align:center;color:var(--text-light)">
+        <span class="skeleton" style="width:60%;height:18px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto"></span>
+        <span class="skeleton" style="width:80%;height:14px;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto"></span>
+        <span class="skeleton" style="width:70%;height:14px;display:block;margin-left:auto;margin-right:auto"></span>
+    </div>`;
+
+    initSupabase();
+    await fetchData();
+    scheduleRefresh();
+
+    /* mark auto-refresh button initial state */
+    const btn = document.getElementById('btn-refresh');
+    btn.classList.add('active');
+})();
+</script>
+</body>
+</html>

@@ -147,7 +147,52 @@
             .mission-icon{width:56px;height:56px;font-size:1.6rem}
             .mission-info h2{font-size:1rem}
         }
+        /* ─── NAME GATE ─── */
+        .name-gate{
+            text-align:center;padding-top:20px;
+            animation:fadeUp .5s ease both;
+        }
+        .name-gate h2{
+            font-family:'Fredoka',sans-serif;font-weight:700;
+            font-size:1.5rem;letter-spacing:-.5px;margin-bottom:6px;
+        }
+        .name-gate p{color:var(--text-mid);font-size:.95rem;margin-bottom:24px}
+        .name-input{
+            width:100%;padding:16px 20px;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.15rem;
+            background:var(--card);color:var(--text);
+            border:3px solid var(--border);border-radius:16px;
+            box-shadow:4px 4px 0 var(--border);
+            outline:none;text-align:center;
+            -webkit-tap-highlight-color:transparent;
+        }
+        .name-input:focus{border-color:#3B82F6;box-shadow:4px 4px 0 #3B82F6}
+        .name-input::placeholder{color:var(--text-light);font-weight:400}
+        .name-submit{
+            display:inline-block;margin-top:16px;padding:14px 40px;
+            background:#3B82F6;color:#fff;
+            border:3px solid var(--border);border-bottom-width:7px;border-radius:16px;
+            font-family:'Fredoka',sans-serif;font-weight:700;font-size:1.1rem;
+            cursor:pointer;transition:all .1s;
+            -webkit-tap-highlight-color:transparent;min-height:48px;
+        }
+        .name-submit:hover{transform:translateY(-2px)}
+        .name-submit:active{transform:translateY(4px);border-bottom-width:3px}
+        .name-submit:disabled{opacity:.5;cursor:default;transform:none}
+        .welcome-bar{
+            display:flex;align-items:center;justify-content:center;gap:8px;
+            margin-bottom:8px;
+            font-family:'Fredoka',sans-serif;font-weight:600;font-size:1rem;
+            animation:fadeUp .3s ease both;
+        }
+        .welcome-bar .change-link{
+            font-size:.8rem;color:var(--text-light);cursor:pointer;
+            text-decoration:underline;font-weight:400;
+        }
+        .welcome-bar .change-link:hover{color:var(--text)}
+        .hidden{display:none!important}
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -160,7 +205,22 @@
         <p>School's closed, but the fun isn't!<br>Pick your mission and earn points.</p>
     </div>
 
-    <div class="missions">
+    <!-- NAME GATE -->
+    <div class="name-gate" id="name-gate">
+        <h2>What's your name?</h2>
+        <p>So your teacher can see your awesome work!</p>
+        <input type="text" class="name-input" id="name-input" placeholder="Type your first name..." maxlength="40" autocomplete="off" autofocus>
+        <br>
+        <button class="name-submit" id="name-submit" disabled>Let's Go!</button>
+    </div>
+
+    <!-- WELCOME BAR (shown when name is already set) -->
+    <div class="welcome-bar hidden" id="welcome-bar">
+        <span id="welcome-text"></span>
+        <span class="change-link" id="change-name">change</span>
+    </div>
+
+    <div class="missions hidden" id="missions-list">
         <a href="reading.html" class="mission reading">
             <div class="mission-icon">&#x1F4D6;</div>
             <div class="mission-info">
@@ -192,10 +252,122 @@
         </a>
     </div>
 
-    <div class="footer">Snow Day Missions &mdash; do your best work!</div>
+    <div class="footer hidden" id="footer">Snow Day Missions &mdash; do your best work!</div>
 </div>
 
 <script>
+/* ─── SUPABASE INIT ─── */
+var SUPABASE_URL = 'https://gpvvxfgpxzhhrvypblvz.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdnZ4ZmdweHpoaHJ2eXBibHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM2NjMsImV4cCI6MjA4Nzc5OTY2M30.bGHqMi-QdKXkSnsB2b3kpoG72xVd_xYxRAWENnORP7A';
+var _sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+/* ─── DOM REFS ─── */
+var nameGate = document.getElementById('name-gate');
+var nameInput = document.getElementById('name-input');
+var nameSubmit = document.getElementById('name-submit');
+var welcomeBar = document.getElementById('welcome-bar');
+var welcomeText = document.getElementById('welcome-text');
+var changeName = document.getElementById('change-name');
+var missionsList = document.getElementById('missions-list');
+var footer = document.getElementById('footer');
+
+/* ─── NAME LOGIC ─── */
+function showMissions() {
+    nameGate.classList.add('hidden');
+    welcomeBar.classList.remove('hidden');
+    missionsList.classList.remove('hidden');
+    footer.classList.remove('hidden');
+}
+
+function showNameGate() {
+    nameGate.classList.remove('hidden');
+    welcomeBar.classList.add('hidden');
+    missionsList.classList.add('hidden');
+    footer.classList.add('hidden');
+    nameInput.value = '';
+    nameInput.focus();
+}
+
+/* Enable/disable submit based on input */
+nameInput.addEventListener('input', function() {
+    nameSubmit.disabled = nameInput.value.trim().length === 0;
+});
+
+/* Submit on Enter */
+nameInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && nameInput.value.trim().length > 0) {
+        submitName();
+    }
+});
+
+nameSubmit.addEventListener('click', submitName);
+
+function submitName() {
+    var name = nameInput.value.trim();
+    if (!name) return;
+    nameSubmit.disabled = true;
+    nameSubmit.textContent = 'Loading...';
+
+    /* Store name locally */
+    localStorage.setItem('sdm-student-name', name);
+
+    /* Upsert to Supabase */
+    if (_sb) {
+        _sb.from('sdm_students')
+            .upsert({ name: name }, { onConflict: 'name' })
+            .select('id')
+            .single()
+            .then(function(res) {
+                if (res.data && res.data.id) {
+                    localStorage.setItem('sdm-student-id', res.data.id);
+                }
+                welcomeText.textContent = 'Hi, ' + name + '!';
+                nameSubmit.textContent = "Let's Go!";
+                showMissions();
+            })
+            .catch(function() {
+                /* Fallback: show missions even if Supabase fails */
+                welcomeText.textContent = 'Hi, ' + name + '!';
+                nameSubmit.textContent = "Let's Go!";
+                showMissions();
+            });
+    } else {
+        welcomeText.textContent = 'Hi, ' + name + '!';
+        nameSubmit.textContent = "Let's Go!";
+        showMissions();
+    }
+}
+
+/* Change name link */
+changeName.addEventListener('click', function() {
+    localStorage.removeItem('sdm-student-name');
+    localStorage.removeItem('sdm-student-id');
+    showNameGate();
+});
+
+/* ─── INIT: Check if name already set ─── */
+(function() {
+    var savedName = localStorage.getItem('sdm-student-name');
+    if (savedName) {
+        welcomeText.textContent = 'Hi, ' + savedName + '!';
+        showMissions();
+        /* Re-fetch student ID if missing */
+        if (!localStorage.getItem('sdm-student-id') && _sb) {
+            _sb.from('sdm_students')
+                .upsert({ name: savedName }, { onConflict: 'name' })
+                .select('id')
+                .single()
+                .then(function(res) {
+                    if (res.data && res.data.id) {
+                        localStorage.setItem('sdm-student-id', res.data.id);
+                    }
+                });
+        }
+    } else {
+        showNameGate();
+    }
+})();
+
 /* ─── SNOWFLAKES ─── */
 (function(){
     const container = document.getElementById('snow');

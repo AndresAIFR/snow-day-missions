@@ -326,6 +326,7 @@
             .snow,.confetti-wrap{display:none !important}
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -409,6 +410,37 @@
 <div class="confetti-wrap" id="confetti-wrap"></div>
 
 <script>
+/* --- SUPABASE TRACKING --- */
+var SUPABASE_URL = 'https://gpvvxfgpxzhhrvypblvz.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwdnZ4ZmdweHpoaHJ2eXBibHZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIyMjM2NjMsImV4cCI6MjA4Nzc5OTY2M30.bGHqMi-QdKXkSnsB2b3kpoG72xVd_xYxRAWENnORP7A';
+var _sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
+
+function getStudentId() {
+    try { return localStorage.getItem('sdm-student-id'); } catch(e) { return null; }
+}
+
+function trackAnswer(levelName, levelIndex, questionIndex, questionText, selectedAnswer, correctAnswer, isCorrect, pointsEarned) {
+    var sid = getStudentId();
+    if (!sid || !_sb) return;
+    _sb.from('sdm_answers').insert({
+        student_id: sid,
+        mission: 'math-senior',
+        level_name: levelName,
+        level_index: levelIndex,
+        question_index: questionIndex,
+        question_text: questionText,
+        selected_answer: selectedAnswer,
+        correct_answer: correctAnswer,
+        is_correct: isCorrect,
+        points_earned: pointsEarned
+    }).then(function(){});
+}
+
+/* Redirect to index if no student name set */
+if (!getStudentId() && !localStorage.getItem('sdm-student-name')) {
+    window.location.href = 'index.html';
+}
+
 /* ---- SOUND EFFECTS (Web Audio API) ---- */
 var AudioCtx = window.AudioContext || window.webkitAudioContext;
 var _actx;
@@ -702,6 +734,12 @@ function pickAnswer(idx) {
     btnContinue.classList.add('show');
     updateStats();
     saveProgress();
+
+    /* --- Track answer to Supabase --- */
+    var _lv = LEVELS[S.li];
+    var _q = _lv.qs[S.qi];
+    var _pointsEarned = correct ? (S.streak >= 3 ? 15 : 10) : 0;
+    trackAnswer(_lv.name, S.li, S.qi, _q.q, _q.opts[idx], _q.opts[_q.ans], correct, _pointsEarned);
 
 }
 
